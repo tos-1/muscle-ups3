@@ -1,0 +1,1 @@
+int halomodel( const int NG, const double boxsize, const double redshift, const double Delta_v, const double mcrit, const double rho, int *sift, int *psi3, float *cc, double *pos, const char *path, const char *hmf);
