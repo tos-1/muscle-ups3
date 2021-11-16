@@ -1,0 +1,17 @@
+.ipynb_checkpoints/
+__pycache__/
+build/
+cosmo.pyc
+ext/
+gadgetutils.pyc
+hmf_at_z0.0_Om0.30.dat
+muscleups.pyc
+sims/
+src/Paint.o
+src/_Paint.o
+src/_mas.o
+src/_masHalos.o
+src/create_ghost.o
+src/mas.o
+src/masHalos.o
+venv/
