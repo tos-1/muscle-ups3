@@ -454,7 +454,7 @@ def generateHMSC(ng=256, boxsize=256., get_pk=False, info='', window='gauss', hm
     return
 
 
-def computeHMF(path_to_hc, saveto=None):
+def computeHMF(path_to_hc, boxsize, ng, saveto=None):
     """ return the halo mass function from the halo catalogue """
     boxsize = 256.
     ng = 256
@@ -697,7 +697,7 @@ if __name__ == "__main__":
 
     #computeStatistics( pathtobin='sims/bx256.0_ng256_z0.0_Om0.30/muscleups/z0.0__0.dat', saveto=None)
 
-    #computeHMF(path_to_hc='sims/bx256.0_ng256_z0.0_Om0.30/muscleups/z0.0__0.dat', saveto=None)
+    #computeHMF(path_to_hc='sims/bx256.0_ng256_z0.0_Om0.30/muscleups/z0.0__0.dat', boxsize, ng, saveto=None)
 
     #lagslice(pathtobin='sims/bx256.0_ng256_z0.0_Om0.30/muscleups/z0.0__0.dat', saveto=None)
 
