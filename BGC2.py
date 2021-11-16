@@ -16,50 +16,61 @@ import struct
 import os
 import numpy as N
 
-def read_bgc2 ( filename ) :
-	offset = 4
-	groupoffset = 8
-	particleoffset = 8
-	headersize = 1024
-	groupsize = 4*8 + 10*4
-	particlesize = 1*8 + 6*4
-	headerformat = '=Q 16q 19d'
-	groupformat = '=2q 2Q 10f'
-	particleformat = '=q 6f '
-	#print " Reading " + filename + " ... "
-	fd = open ( filename , 'rb')
-	bin_string = fd.read()
-	fd.close()
-	#print " Finished reading file "
-	bin_string = bin_string[offset:]
 
-	# Header stuff
-	header_bin = bin_string[:headersize]
-	header_pad = headersize - 36*8
-	header = list( struct.unpack( headerformat , header_bin[:-header_pad]) )
+def read_bgc2(filename):
+    offset = 4
+    groupoffset = 8
+    particleoffset = 8
+    headersize = 1024
+    groupsize = 4 * 8 + 10 * 4
+    particlesize = 1 * 8 + 6 * 4
+    headerformat = '=Q 16q 19d'
+    groupformat = '=2q 2Q 10f'
+    particleformat = '=q 6f '
+    # print " Reading " + filename + " ... "
+    fd = open(filename, 'rb')
+    bin_string = fd.read()
+    fd.close()
+    # print " Finished reading file "
+    bin_string = bin_string[offset:]
 
-	# Group stuff
-	ngroups = header[8]
-	#print ' ngroups  = ' , ngroups
-	groupstart = headersize + groupoffset
-	groupend = groupstart + ngroups * groupsize
-	group_bin = bin_string[groupstart:groupend]
-	group = []
-	for i in range ( ngroups ):
-		group.append( list( struct.unpack( groupformat , group_bin[ i * groupsize :( i +1) * groupsize ]) ) )	
+    # Header stuff
+    header_bin = bin_string[:headersize]
+    header_pad = headersize - 36 * 8
+    header = list(struct.unpack(headerformat, header_bin[:-header_pad]))
 
-	# Particle stuff
-	particlestart = headersize + groupoffset + ngroups * groupsize + particleoffset
-	particle_bin = bin_string[particlestart:]
-	particle = []
-	p_start = 0
-	for i in range ( ngroups ):
-		npart = group[i][2]
-		particle.append([])
-		for j in range ( npart ):
-			particle[ i ].append( list( struct.unpack( particleformat , particle_bin[ p_start : p_start + particlesize ]) ) )
-			p_start += particlesize
-		p_start += particleoffset
+    # Group stuff
+    ngroups = header[8]
+    # print ' ngroups  = ' , ngroups
+    groupstart = headersize + groupoffset
+    groupend = groupstart + ngroups * groupsize
+    group_bin = bin_string[groupstart:groupend]
+    group = []
+    for i in range(ngroups):
+        group.append(list(struct.unpack(groupformat,
+                                        group_bin[i * groupsize:(i + 1) * groupsize])))
 
-	#print " Finished parsing bgc2 file "
-	return header , group , particle
+    # Particle stuff
+    particlestart = headersize + groupoffset + ngroups * groupsize + particleoffset
+    particle_bin = bin_string[particlestart:]
+    particle = []
+    p_start = 0
+    for i in range(ngroups):
+        npart = group[i][2]
+        particle.append([])
+        for j in range(npart):
+            particle[i].append(list(struct.unpack(
+                particleformat, particle_bin[p_start: p_start + particlesize])))
+            p_start += particlesize
+        p_start += particleoffset
+
+    # print " Finished parsing bgc2 file "
+    return header, group, particle
+
+def only_id(filename):
+    _, halo, _particles = read_bgc2(filename)
+    haloid = N.asarray([halo[i][:3] for i in range(
+        N.shape(halo)[0])])  # halo-id, pid, npart
+    particles = N.asarray([[_particles[i][j][0] for j in range(
+        haloid[i, -1].astype(N.int32))] for i in range(N.shape(_particles)[0])])
+    return haloid, particles
