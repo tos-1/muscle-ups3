@@ -15,3 +15,6 @@ src/create_ghost.o
 src/mas.o
 src/masHalos.o
 venv/
+BGC2.pyc
+readgadget.py
+readsnap.py
