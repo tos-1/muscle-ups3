@@ -5,8 +5,8 @@
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_sf_result.h>
 #include <gsl/gsl_math.h>
-#include <gsl/gsl_eigen.h>
-#include <gsl/gsl_blas.h>
+//#include <gsl/gsl_eigen.h>
+//#include <gsl/gsl_blas.h>
 #include "pnum.h"
 #include "search.h"
 #include "sort.h"
@@ -655,7 +655,7 @@ int halomodel( const int NG, const double boxsize, const double redshift, const 
       if (r>0.0){
 	Dx = *(pos + j ) - poshcx;
 	Dy = *( pos + j + nothalonum ) - poshcy;
-	Dz = *( pos + j + 2*nothalonum )- poshcz;
+	Dz = *( pos + j + 2*nothalonum ) - poshcz;
         Dx = diffpbc(Dx,boxsize);
         Dy = diffpbc(Dy,boxsize);
         Dz = diffpbc(Dz,boxsize);

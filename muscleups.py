@@ -257,10 +257,9 @@ class muscleups(object):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=RuntimeWarning)
-            #G = -1/self.k**2.
-            G = self.cellsize**2. / 2. / (N.cos(self.kx * self.cellsize) + N.cos(
-                self.ky * self.cellsize) + N.cos(self.kz * self.cellsize) - 3.)
-            G.flat[0] = 0
+            G = -1/self.k**2.
+
+        G.flat[0] = 0
 
         phixc = 1j * self.kx * G * psi_k
         phiyc = 1j * self.ky * G * psi_k
@@ -616,9 +615,7 @@ class muscleups(object):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=RuntimeWarning)
-            #G = -1/self.k**2.
-            G = self.cellsize**2. / 2. / (N.cos(self.kx * self.cellsize) + N.cos(
-                self.ky * self.cellsize) + N.cos(self.kz * self.cellsize) - 3.)
+            G = -1/self.k**2.
 
         G.flat[0] = 0
 
