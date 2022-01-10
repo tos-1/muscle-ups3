@@ -1,4 +1,8 @@
 #Quijote simulation
+boxsize = 100.
+ng = 128
+#ng = 512
+#box = 1000.
 cosmology = 'ehu'
 Omega_m = 0.3175
 Omega_b = 0.049
@@ -9,8 +13,6 @@ ns = 0.9624
 s8 = 0.834
 z_pk = 127.0
 redshift = 0.0
-ng = 512
-box = 1000.
 sigmaalpt = 4.0
 scheme = '2lpt'
 smallscheme = None
@@ -20,3 +22,4 @@ seed = 1
 exact_pk = True
 makeic = False
 return_pos = False
+extra_info=''
