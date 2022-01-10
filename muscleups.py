@@ -361,8 +361,8 @@ class muscleups(object):
 
             elif self.scheme == 'muscleups':
                 print("using muscleups")
-                psi = pyfftw.empty_aligned(self.shr, dtype='float64')
-                psi_k = pyfftw.empty_aligned(self.shc, dtype='complex128')
+                psi = pyfftw.empty_aligned(self.shr, dtype='float32')
+                psi_k = pyfftw.empty_aligned(self.shc, dtype='complex64')
                 fft = pyfftw.FFTW(
                     psi, psi_k, direction='FFTW_FORWARD', axes=[0, 1, 2])
                 psi, cc, sift, hp = self.muscleups(dk)
