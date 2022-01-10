@@ -63,13 +63,18 @@ class muscleups(object):
             paramfile=None):
 
         if paramfile is not None:
-            import params
+            try:
+                params = __import__(os.path.splitext(paramfile)[0])
+            except ImportError:
+                raise ImportError(
+                    "not able to import param file")
+
             print("reading the parameters from params.py")
             self.ng = int(params.ng)
             self.thirdim = self.ng // 2 + 1
             self.boxsize = float(params.boxsize)
             self.cellsize = params.boxsize / float(params.ng)
-            self.h = float(params.h)
+            self.h = float(params.hubble)
             self.redshift = float(params.redshift)
             self.z_pk = float(params.z_pk)
             self.sigmaalpt = float(params.sigmaalpt)
@@ -669,7 +674,7 @@ class muscleups(object):
 
         return psi, cc, sift, hp
 
-    def Rockstar(self, dk, perfect=False):
+    def Rockstar(self, dk):
         ''' ALPT based on halo particles found by Rockstar '''
 
         ks = self.k * self.sigmaalpt
