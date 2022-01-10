@@ -31,7 +31,7 @@ typedef struct{
     double Mass;
     double Rv;
     double cM;
-    float poshc[3];
+    double poshc[3];
     int halopid[];
 } Halo;
 
@@ -44,21 +44,20 @@ typedef struct{
 
 
 int halomodel( const int NG, const double boxsize, const double redshift, const double Delta_v, const double mcrit, const double rho, 
-		int *sift, int *psi3, float *cc, float *pos, const char *path, const char *hmf){
+		int *sift, int *psi3, float *cc, double *pos, const char *path, const char *hmf){
   int nhp, tnh, tnhs, nres, npinh;
   int i, j, k, h, l, m, idcan;
   int *halonum, *numinh;
   int *tmp_countsm, *numinh_tmp;
   int *haloID, *halop;
-  float poshcx , poshcy , poshcz;
-  float Dx, Dy, Dz;
-  float phi, theta;
-  float q, r, Rvir; 
-  double rk, M1, x, cm, y;
-  float mass;
-  float *dist0c;
-  float dnpinh;
-  float xyz[3];
+  double poshcx , poshcy , poshcz;
+  double Dx, Dy, Dz;
+  double phi, theta;
+  double q, r, Rvir, rk, M1;
+  double x , mass, cm , y;
+  double *dist0c;
+  double dnpinh;
+  double xyz[3];
   //double axisx,axisy,axisz;
   //double Ixx,Iyy,Izz,Ixy,Ixz,Iyz,Iij[9];
   //double evals[3], mevac[9], xyz2[3];
@@ -550,7 +549,7 @@ int halomodel( const int NG, const double boxsize, const double redshift, const 
   /* find the center of mass of each halo */
   for (h=0;h<nh;h++){
     npinh = (*phalos)[h]->npinh;
-    dnpinh = (float) npinh;
+    dnpinh = (double) npinh;
     idcan = (*phalos)[h]->id;
     poshcx = *(pos+idcan);
     poshcy = *(pos+idcan+nothalonum);
@@ -570,7 +569,7 @@ int halomodel( const int NG, const double boxsize, const double redshift, const 
   /* reorder particles according to NFW */
   for (h=0;h<nh;h++){
     npinh = (*phalos)[h]->npinh;
-    dist0c = malloc(npinh*sizeof(float*));
+    dist0c = malloc(npinh*sizeof(double*));
     if (dist0c==NULL){
       printf("failed to allocate memory for dist0c\n");
       exit(42);
@@ -632,7 +631,7 @@ int halomodel( const int NG, const double boxsize, const double redshift, const 
     //gsl_vector_free (eval);
     //gsl_matrix_free (evec);
 
-    mergeSortFloat( dist0c, id0c, 0, npinh-1);
+    mergeSortDouble( dist0c, id0c, 0, npinh-1);
     M1 = log(1.+cm) - cm/(1.+cm);
     for (i=0; i< npinh; i++){
       j = *( id0c + i);
@@ -645,8 +644,8 @@ int halomodel( const int NG, const double boxsize, const double redshift, const 
         printf("error in Lambert function\n");
         exit(42);
       }
-      q =(float) -1./cm * ( 1. + 1./y );
-      q = q * (float) Rvir;
+      q = -1./cm * ( 1. + 1./y );
+      q = q * Rvir;
       q*=2.0;
       if (q<0.){
         printf("q should not be negative");

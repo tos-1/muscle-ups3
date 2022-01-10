@@ -191,7 +191,7 @@ class muscleups(object):
 
         if self.scheme == 'muscleups':
             hp = N.asarray(hp, N.int32).flatten()
-            pos = N.asarray(pos, dtype=N.float32).flatten()
+            pos = N.asarray(pos, dtype=N.float64).flatten()
             cc = N.asarray(cc, N.float32).flatten()
             sift = N.asarray(sift, N.int32).flatten()
             sift[sift <= 0] = -1
@@ -361,8 +361,8 @@ class muscleups(object):
 
             elif self.scheme == 'muscleups':
                 print("using muscleups")
-                psi = pyfftw.empty_aligned(self.shr, dtype='float32')
-                psi_k = pyfftw.empty_aligned(self.shc, dtype='complex64')
+                psi = pyfftw.empty_aligned(self.shr, dtype='float64')
+                psi_k = pyfftw.empty_aligned(self.shc, dtype='complex128')
                 fft = pyfftw.FFTW(
                     psi, psi_k, direction='FFTW_FORWARD', axes=[0, 1, 2])
                 psi, cc, sift, hp = self.muscleups(dk)
