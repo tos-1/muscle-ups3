@@ -18,7 +18,7 @@ static PyObject* halomodel_halomodel(PyObject* self, PyObject* args)
     PyObject *sift_array = PyArray_FROM_OTF( sift_obj, NPY_INT32 , NPY_IN_ARRAY);
     PyObject *cc_array = PyArray_FROM_OTF( cc_obj, NPY_FLOAT32 , NPY_IN_ARRAY);
     PyObject *psi3_array = PyArray_FROM_OTF( psi3_obj, NPY_INT32 , NPY_IN_ARRAY);
-    PyObject *pos_array = PyArray_FROM_OTF( pos_obj, NPY_FLOAT64 , NPY_IN_ARRAY);
+    PyObject *pos_array = PyArray_FROM_OTF( pos_obj, NPY_FLOAT32 , NPY_IN_ARRAY);
     PyObject *path_string = PyObject_Str(path_obj);
     PyObject *hmf_string = PyObject_Str(hmf_obj);
 
@@ -38,7 +38,7 @@ static PyObject* halomodel_halomodel(PyObject* self, PyObject* args)
     int *sift = (int*)PyArray_DATA(sift_array);
     int *psi3 = (int*)PyArray_DATA(psi3_array);
     float *cc = (float*)PyArray_DATA(cc_array);
-    double *pos = (double*)PyArray_DATA(pos_array);
+    float *pos = (float*)PyArray_DATA(pos_array);
 
     #if PY_MAJOR_VERSION >= 3
     const char *path = PyUnicode_AsUTF8(path_string);
