@@ -58,13 +58,13 @@ class muscleups(object):
             threads=1,
             extra_info='',
             seed=1,
-	    binic=None,
+            binic=None,
             exact_pk=True,
-	    paramfile=None):
+            paramfile=None):
 
         if paramfile is not None:
-	    import params	
-	    print("reading the parameters from params.py")
+            import params
+            print("reading the parameters from params.py")
             self.ng = int(params.ng)
             self.thirdim = self.ng // 2 + 1
             self.boxsize = float(params.boxsize)
@@ -81,8 +81,8 @@ class muscleups(object):
             self.seed = params.seed
             self.exact_pk = params.exact_pk
             self.mpx = 1  # remove in the future
-	else:
-	    print("parsing the parameters")
+        else:
+            print("parsing the parameters")
             self.ng = int(ng)
             self.thirdim = self.ng // 2 + 1
             self.boxsize = float(boxsize)
@@ -106,12 +106,13 @@ class muscleups(object):
                 raise ValueError(
                     "for initial conditions you need z_pk=redshift")
 
-	self.binic = binic
-	if self.binic is not None:
+        self.binic = binic
+        if self.binic is not None:
             try:
                 import readgadget
             except ImportError:
-               raise ImportError("not able to import readgadget to read binaries of initial conditions")
+                raise ImportError(
+                    "not able to import readgadget to read binaries of initial conditions")
 
         # for fftw
         self.threads = threads
@@ -159,9 +160,9 @@ class muscleups(object):
         ''' Main function '''
 
         # generate primordial density field
-	if self.binic is not None:
-	    dk = self.load_dk()
-	else:
+        if self.binic is not None:
+            dk = self.load_dk()
+        else:
             dk = self.dk()
 
         # returns the displacement fields
@@ -190,7 +191,7 @@ class muscleups(object):
 
         if self.scheme == 'muscleups':
             hp = N.asarray(hp, N.int32).flatten()
-            pos = N.asarray(pos, dtype=N.float64).flatten()
+            pos = N.asarray(pos, dtype=N.float32).flatten()
             cc = N.asarray(cc, N.float32).flatten()
             sift = N.asarray(sift, N.int32).flatten()
             sift[sift <= 0] = -1
@@ -290,7 +291,7 @@ class muscleups(object):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=RuntimeWarning)
-            G = -1/self.k**2.
+            G = -1 / self.k**2.
 
         G.flat[0] = 0
 
@@ -370,7 +371,7 @@ class muscleups(object):
                 return disp_field, vel, cc, sift, hp
 
             elif self.scheme == 'Rockstar':
-                print "using Rockstar"
+                print("using Rockstar")
                 psi_tza = pyfftw.empty_aligned(self.shr, dtype='float32')
                 psi_tza_k = pyfftw.empty_aligned(self.shc, dtype='complex64')
                 psi_tza = self.Rockstar(dk)
@@ -467,42 +468,50 @@ class muscleups(object):
         return dk
 
     def get_pos_ics(self):
-        ptype = [1] # cdm
-        pos_ICs = readgadget.read_block(self.binic, "POS ", ptype)/1e3 #Mpc/h
-        IDs_ICs = readgadget.read_block(self.binic, "ID  ", ptype)-1   #IDs begin from 0
+        ptype = [1]  # cdm
+        pos_ICs = readgadget.read_block(
+            self.binic, "POS ", ptype) / 1e3  # Mpc/h
+        IDs_ICs = readgadget.read_block(
+            self.binic, "ID  ", ptype) - 1  # IDs begin from 0
         indexes = np.argsort(IDs_ICs)
         pos_ICs = pos_ICs[indexes]
         return pos_ICs
-    
+
     def get_disp(self):
         pos_ICs = self.get_pos_ics()
-        grid_index = (np.round((pos_ICs/self.boxsize)*self.ng, decimals=0)).astype(np.int32)
-        grid_index[np.where(grid_index==self.ng)]=0
-        disp = pos_ICs - grid_index*self.boxsize/self.ng
-        disp[np.where(disp> self.boxsize/2.0)] -= self.boxsize
-        disp[np.where(disp<-self.boxsize/2.0)] += self.boxsize
+        grid_index = (
+            np.round(
+                (pos_ICs / self.boxsize) * self.ng,
+                decimals=0)).astype(
+            np.int32)
+        grid_index[np.where(grid_index == self.ng)] = 0
+        disp = pos_ICs - grid_index * self.boxsize / self.ng
+        disp[np.where(disp > self.boxsize / 2.0)] -= self.boxsize
+        disp[np.where(disp < -self.boxsize / 2.0)] += self.boxsize
         del pos_ICs
         gc.collect()
-        grid_index = grid_index[:,0]*grid**2 + grid_index[:,1]*grid + grid_index[:,2]
-        indexes2   = np.argsort(grid_index)
+        grid_index = grid_index[:, 0] * grid**2 + \
+            grid_index[:, 1] * grid + grid_index[:, 2]
+        indexes2 = np.argsort(grid_index)
         del grid_index
         gc.collect()
         disp = disp[indexes2]
         return disp
-    
+
     def get_ini(self):
         disp = self.get_disp()
-        disp = np.reshape(disp,(self.ng,self.ng,self.ng,3))
-        disp = np.rollaxis(disp,-1)
-    
+        disp = np.reshape(disp, (self.ng, self.ng, self.ng, 3))
+        disp = np.rollaxis(disp, -1)
+
         # divergence
         for i in range(3):
-            disp[i] = ( 2./3.*(np.roll(disp[i],-1,i) - np.roll(disp[i],1,i)) -1./12.*(np.roll(disp[i],-2,i) - np.roll(disp[i],2,i)) )/self.cellsize
-    
-        delta_ini = -(disp[0]+disp[1]+disp[2])
+            disp[i] = (2. / 3. * (np.roll(disp[i], -1, i) - np.roll(disp[i], 1, i)) - 1. /
+                       12. * (np.roll(disp[i], -2, i) - np.roll(disp[i], 2, i))) / self.cellsize
+
+        delta_ini = -(disp[0] + disp[1] + disp[2])
         return delta_ini
-    
-    def load_dk(self)
+
+    def load_dk(self):
         d = self.get_psi()
         dk = N.fft.rfftn(d)
         return dk
@@ -660,53 +669,55 @@ class muscleups(object):
 
         return psi, cc, sift, hp
 
-
-    def Rockstar(self,dk,perfect=False):
+    def Rockstar(self, dk, perfect=False):
         ''' ALPT based on halo particles found by Rockstar '''
 
-        ks = self.k*self.sigmaalpt
-        Wk = N.exp(-(ks)**2./2.)
+        ks = self.k * self.sigmaalpt
+        Wk = N.exp(-(ks)**2. / 2.)
         Wk.flat[0] = 1
 
-        psik = -dk*Wk*self.growth + N.fft.rfftn(self.twolpt(dk*Wk))
+        psik = -dk * Wk * self.growth + N.fft.rfftn(self.twolpt(dk * Wk))
 
         psi_sc = self.sc(dk)
 
-	from BGC2 import only_id
-	def halo_particles():
-	    halos = np.empty((1,3))
-	    particles = []
+        from BGC2 import only_id
+
+        def halo_particles():
+            halos = np.empty((1, 3))
+            particles = []
             for num in range(8):
-                input_file = '/home/wp3i/Quijote/10000/rockstar_halos/halos_0.'+str(num)+'.bgc2'
-                _halos, _particles = only_id( input_file )
-                particles = np.concatenate((particles,_particles),axis=0)
-                halos = np.concatenate((halos,_halos),axis=0)
+                input_file = '/home/wp3i/Quijote/10000/rockstar_halos/halos_0.' + \
+                    str(num) + '.bgc2'
+                _halos, _particles = only_id(input_file)
+                particles = np.concatenate((particles, _particles), axis=0)
+                halos = np.concatenate((halos, _halos), axis=0)
             halos = halos[1:]
             return particles, halos
 
-        halonum = np.zeros(ng**3,dtype=np.int32)
-        def _halonum(): 
+        halonum = np.zeros(ng**3, dtype=np.int32)
+
+        def _halonum():
             global halonum
             halo_particles, halo_id = halo_particles()
             for j in range(np.shape(halo_particles)[0]):
-                hp = np.asarray(halo_particles[j])-1
-                halonum[hp] = halo_id[j,0]
+                hp = np.asarray(halo_particles[j]) - 1
+                halonum[hp] = halo_id[j, 0]
             return halonum
 
         halonum = _halonum()
-	psi_sc = psi_sc.flatten()
-	psi_sc = np.where(halonum!=0,-3.0,psi_sc)
+        psi_sc = psi_sc.flatten()
+        psi_sc = np.where(halonum != 0, -3.0, psi_sc)
 
-        psi_sc[psi_sc!=-3.0] -= N.mean(psi_sc,axis=None)/len( psi_sc[psi_sc!=-3.0] )
-	psi_sc = psi_sc.reshape(self.shr)
+        psi_sc[psi_sc != -3.0] -= N.mean(psi_sc,
+                                         axis=None) / len(psi_sc[psi_sc != -3.0])
+        psi_sc = psi_sc.reshape(self.shr)
 
         psik_sc = N.fft.rfftn(psi_sc)
-        psik = psik_sc*(1-Wk) + psik
+        psik = psik_sc * (1 - Wk) + psik
 
         psi = N.fft.irfftn(psik)
 
         return psi
-
 
     def twolpt(self, dk):
         ''' it returns the displacement potential at second order '''
@@ -745,7 +756,7 @@ class muscleups(object):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=RuntimeWarning)
-            G = -1/self.k**2.
+            G = -1 / self.k**2.
 
         G.flat[0] = 0
 
