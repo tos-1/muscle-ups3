@@ -3,6 +3,8 @@ import cosmo
 import pyfftw
 import gadgetutils
 import os
+import sys
+import gc
 import warnings
 import multiprocessing
 from ext._Paint import Paint
