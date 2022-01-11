@@ -3,11 +3,16 @@ import cosmo
 import pyfftw
 import gadgetutils
 import os
+import sys
+import gc
 import warnings
 import multiprocessing
 from ext._Paint import Paint
 from ext._halomodel import halomodel
-
+try:
+    import readgadget
+except ImportError:
+        print"not possible to import readgadget to read binaries of initial conditions")
 
 class muscleups(object):
     '''
@@ -35,6 +40,7 @@ class muscleups(object):
       exact_pk: boolean to fix the fourier amplitudes of the initial density
       makeic: write the parameter file and the binaries for Gadget2. If z_pk!=redshift an error is raised. It works only with 2lpt
       pos: boolean to return the array of pos, otherwise positions are written on a binary in Gadget2 format
+      binic: binary to the initial density
     '''
 
     def __init__(
@@ -57,30 +63,65 @@ class muscleups(object):
             threads=1,
             extra_info='',
             seed=1,
-            exact_pk=True):
+            binic=None,
+            exact_pk=True,
+            paramfile=None):
 
-        self.ng = int(ng)
-        self.thirdim = self.ng // 2 + 1
-        self.boxsize = float(boxsize)
-        self.cellsize = boxsize / float(ng)
-        self.h = float(h)
-        self.redshift = float(redshift)
-        self.z_pk = float(z_pk)
-        self.sigmaalpt = float(sigmaalpt)
-        self.ns = float(ns)
-        self.scheme = scheme
-        self.smallscheme = smallscheme
-        self.return_pos = return_pos
-        self.extra_info = extra_info
-        self.seed = seed
-        self.exact_pk = exact_pk
-        self.mpx = 1  # remove in the future
+        if paramfile is not None:
+            try:
+                params = __import__(os.path.splitext(paramfile)[0])
+            except ImportError:
+                raise ImportError(
+                    "not able to import param file")
+
+            print("reading the parameters from params.py")
+            self.ng = int(params.ng)
+            self.thirdim = self.ng // 2 + 1
+            self.boxsize = float(params.boxsize)
+            self.cellsize = params.boxsize / float(params.ng)
+            self.h = float(params.hubble)
+            self.redshift = float(params.redshift)
+            self.z_pk = float(params.z_pk)
+            self.sigmaalpt = float(params.sigmaalpt)
+            self.ns = float(params.ns)
+            self.scheme = params.scheme
+            self.smallscheme = params.smallscheme
+            self.return_pos = params.return_pos
+            self.extra_info = params.extra_info
+            self.seed = params.seed
+            self.exact_pk = params.exact_pk
+            self.mpx = 1  # remove in the future
+            self.binic = params.binic
+        else:
+            print("parsing the parameters")
+            self.ng = int(ng)
+            self.thirdim = self.ng // 2 + 1
+            self.boxsize = float(boxsize)
+            self.cellsize = boxsize / float(ng)
+            self.h = float(h)
+            self.redshift = float(redshift)
+            self.z_pk = float(z_pk)
+            self.sigmaalpt = float(sigmaalpt)
+            self.ns = float(ns)
+            self.scheme = scheme
+            self.smallscheme = smallscheme
+            self.return_pos = return_pos
+            self.extra_info = extra_info
+            self.seed = seed
+            self.exact_pk = exact_pk
+            self.mpx = 1  # remove in the future
+            self.binic = binic
 
         self.makeic = makeic
         if self.makeic:
             if not z_pk == redshift:
                 raise ValueError(
                     "for initial conditions you need z_pk=redshift")
+
+        if self.binic is not None:
+            if 'readgadget' not in sys.modules:
+                raise ImportError(
+                    "readgadget was not imported. Not able to import readgadget to read binaries of initial conditions")
 
         # for fftw
         self.threads = threads
@@ -105,7 +146,6 @@ class muscleups(object):
 
         elif cosmology == 'ehu':
             self.C = cosmo.EisHu(h, omega_b, Omega_cdm, ns, sigma8)
-
         else:
             raise ValueError("select the cosmology correctly")
 
@@ -129,7 +169,10 @@ class muscleups(object):
         ''' Main function '''
 
         # generate primordial density field
-        dk = self.dk()
+        if self.binic is not None:
+            dk = self.load_dk()
+        else:
+            dk = self.dk()
 
         # returns the displacement fields
         if self.scheme == 'muscleups':
@@ -257,7 +300,7 @@ class muscleups(object):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=RuntimeWarning)
-            G = -1/self.k**2.
+            G = -1 / self.k**2.
 
         G.flat[0] = 0
 
@@ -327,14 +370,22 @@ class muscleups(object):
 
             elif self.scheme == 'muscleups':
                 print("using muscleups")
-                psi = pyfftw.empty_aligned(self.shr, dtype='float64')
-                psi_k = pyfftw.empty_aligned(self.shc, dtype='complex128')
+                psi = pyfftw.empty_aligned(self.shr, dtype='float32')
+                psi_k = pyfftw.empty_aligned(self.shc, dtype='complex64')
                 fft = pyfftw.FFTW(
                     psi, psi_k, direction='FFTW_FORWARD', axes=[0, 1, 2])
                 psi, cc, sift, hp = self.muscleups(dk)
                 psi_k = fft(psi)
                 disp_field = self.invdiv(psi_k)
                 return disp_field, vel, cc, sift, hp
+
+            elif self.scheme == 'Rockstar':
+                print("using Rockstar")
+                psi_tza = pyfftw.empty_aligned(self.shr, dtype='float32')
+                psi_tza_k = pyfftw.empty_aligned(self.shc, dtype='complex64')
+                psi_tza = self.Rockstar(dk)
+                psi_tza_k = fft_tza(psi_tza)
+                disp_field = self.invdiv(psi_tza_k)
 
             elif self.scheme == '2lpt':
                 print("using 2lpt")
@@ -423,6 +474,55 @@ class muscleups(object):
         dk[self.ng // 2, self.ng // 2 + 1:, self.ng //
             2] = N.conj(dk[self.ng // 2, self.ng // 2 - 1:0:-1, self.ng // 2])
 
+        return dk
+
+    def get_pos_ics(self):
+        ptype = [1]  # cdm
+        pos_ICs = readgadget.read_block(
+            self.binic, "POS ", ptype) / 1e3  # Mpc/h
+        IDs_ICs = readgadget.read_block(
+            self.binic, "ID  ", ptype) - 1  # IDs begin from 0
+        indexes = N.argsort(IDs_ICs)
+        pos_ICs = pos_ICs[indexes]
+        return pos_ICs
+
+    def get_disp(self):
+        pos_ICs = self.get_pos_ics()
+        grid_index = (
+            N.round(
+                (pos_ICs / self.boxsize) * self.ng,
+                decimals=0)).astype(
+            N.int32)
+        grid_index[N.where(grid_index == self.ng)] = 0
+        disp = pos_ICs - grid_index * self.boxsize / self.ng
+        disp[N.where(disp > self.boxsize / 2.0)] -= self.boxsize
+        disp[N.where(disp < -self.boxsize / 2.0)] += self.boxsize
+        del pos_ICs
+        gc.collect()
+        grid_index = grid_index[:, 0] * self.ng**2 + \
+            grid_index[:, 1] * self.ng + grid_index[:, 2]
+        indexes2 = N.argsort(grid_index)
+        del grid_index
+        gc.collect()
+        disp = disp[indexes2]
+        return disp
+
+    def get_ini(self):
+        disp = self.get_disp()
+        disp = N.reshape(disp, (self.ng, self.ng, self.ng, 3))
+        disp = N.rollaxis(disp, -1)
+
+        # divergence
+        for i in range(3):
+            disp[i] = (2. / 3. * (N.roll(disp[i], -1, i) - N.roll(disp[i], 1, i)) - 1. /
+                       12. * (N.roll(disp[i], -2, i) - N.roll(disp[i], 2, i))) / self.cellsize
+
+        delta_ini = -(disp[0] + disp[1] + disp[2])
+        return delta_ini
+
+    def load_dk(self):
+        d = self.get_ini()
+        dk = N.fft.rfftn(d)
         return dk
 
     def getkgrid(self):
@@ -578,6 +678,56 @@ class muscleups(object):
 
         return psi, cc, sift, hp
 
+    def Rockstar(self, dk):
+        ''' ALPT based on halo particles found by Rockstar '''
+
+        ks = self.k * self.sigmaalpt
+        Wk = N.exp(-(ks)**2. / 2.)
+        Wk.flat[0] = 1
+
+        psik = -dk * Wk * self.growth + N.fft.rfftn(self.twolpt(dk * Wk))
+
+        psi_sc = self.sc(dk)
+
+        from BGC2 import only_id
+
+        def halo_particles():
+            halos = N.empty((1, 3))
+            particles = []
+            for num in range(8):
+                input_file = '/home/wp3i/Quijote/10000/rockstar_halos/halos_0.' + \
+                    str(num) + '.bgc2'
+                _halos, _particles = only_id(input_file)
+                particles = N.concatenate((particles, _particles), axis=0)
+                halos = N.concatenate((halos, _halos), axis=0)
+            halos = halos[1:]
+            return particles, halos
+
+        halonum = N.zeros(ng**3, dtype=N.int32)
+
+        def _halonum():
+            global halonum
+            halo_particles, halo_id = halo_particles()
+            for j in range(N.shape(halo_particles)[0]):
+                hp = N.asarray(halo_particles[j]) - 1
+                halonum[hp] = halo_id[j, 0]
+            return halonum
+
+        halonum = _halonum()
+        psi_sc = psi_sc.flatten()
+        psi_sc = N.where(halonum != 0, -3.0, psi_sc)
+
+        psi_sc[psi_sc != -3.0] -= N.mean(psi_sc,
+                                         axis=None) / len(psi_sc[psi_sc != -3.0])
+        psi_sc = psi_sc.reshape(self.shr)
+
+        psik_sc = N.fft.rfftn(psi_sc)
+        psik = psik_sc * (1 - Wk) + psik
+
+        psi = N.fft.irfftn(psik)
+
+        return psi
+
     def twolpt(self, dk):
         ''' it returns the displacement potential at second order '''
 
@@ -615,7 +765,7 @@ class muscleups(object):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=RuntimeWarning)
-            G = -1/self.k**2.
+            G = -1 / self.k**2.
 
         G.flat[0] = 0
 

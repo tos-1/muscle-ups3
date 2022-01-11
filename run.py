@@ -3,7 +3,7 @@ This is the file to call from a bash script to submit a job.
 It makes sense to leave the flag pos == False (default) to save the positions on a binary.
 
 E.g.
->> python run.py -scheme=muscleups -box=100. -ng=128 -z_pk=50 -redshift=0.
+>> python run.py -scheme=2lpt -box=100. -ng=128 -z_pk=50 -redshift=0.
 '''
 
 from muscleups import muscleups
@@ -29,13 +29,14 @@ parser.add_argument('-seed',default =1, help = 'seed of the random number genera
 parser.add_argument('-exact_pk',default = True, help = 'flag to not fix linear mean value of fourier amplitudes of density',action="store_false")
 parser.add_argument('-makeic',default = False, help = 'flag to write the parameter file for Gadget2. If z_pk!=redshift an error is raised',action="store_true")
 parser.add_argument('-return_pos',default = False, help = 'flag to returns the array of pos, instead of writing a binary',action="store_true")
-
+parser.add_argument('-binic',default = None, help = 'binary of the initial conditions. Make sure the input parameters and the IC are consistent')
+parser.add_argument('-paramfile',default = None, help = 'file in .py format where to read the parameters. If provided, it overwrites the other choices')
 
 args = vars(parser.parse_args())
 
 print('the scheme you chose was', args['scheme'])
 
 MSC = muscleups( cosmology = args['cosmology'], h = args['hubble'] , omega_b = args['omega_b'] , Omega_cdm = args['Omega_cdm'], ns = args['ns'] , sigma8 =args['s8'] , z_pk = args['z_pk'], redshift = args['redshift'], sigmaalpt = args['sigmaalpt'], scheme =args['scheme'], ng = args['ng'] ,boxsize = args['box'] ,smallscheme = args['smallscheme'] ,
-makeic = args['makeic'], return_pos=args['return_pos'],threads = args['threads'] , extra_info = args['extra'] ,seed=args['seed'], exact_pk=args['exact_pk'] )
+makeic = args['makeic'], return_pos=args['return_pos'],threads = args['threads'] , extra_info = args['extra'] ,seed=args['seed'], exact_pk=args['exact_pk'], paramfile=args['paramfile'],binic=args['binic'] )
 
 MSC.generate()

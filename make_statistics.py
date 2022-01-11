@@ -144,7 +144,7 @@ def fastXk(dk1=None, dk2=None, d1=None, d2=None, pos1=None,
     except:
         raise ValueError('the input field must have the same size')
 
-    kgrid = getkgrid(boxsize, ng)
+    kx,ky,kz,kgrid = getkgrid(boxsize, ng, what='all')
     norm = (boxsize / float(ng)**2.)**sh
     kny = N.pi * ng / boxsize
 
@@ -223,7 +223,7 @@ def fastPk(d=None, dk=None, pos=None, boxsize=None, nkbins=None, kb=0):
 
     # ng = N.shape(dk)[0]
     sh = len(N.shape(dk))  # dimensions
-    kgrid, kx, ky, kz = getkgrid(boxsize, ng, 'all')
+    kx,ky,kz,kgrid = getkgrid(boxsize, ng, what='all')
     norm = (boxsize / float(ng)**2.)**sh
     kny = N.pi * ng / boxsize
 
@@ -262,16 +262,19 @@ def MAS(pos, boxsize, ng):
     """ Mass assignment scheme. It is calling an external C module, _mas,
         which simply assigns mass to density on grid.
     Inputs:
-        pos: array (ng*ng*ng,3) positions, output of get_pos
+        pos: array (ng*ng*ng,3)/(3,ng,ng,ng) of the positions, output of get_pos
         boxsize: side of the box of the sim
-        np: number of grid resolution
+        ng: number of grid resolution
     """
-
-    np = int(N.cbrt(N.shape(pos)[0]))
-    pos = N.concatenate((pos[:,0], pos[:,1], pos[:,2]), axis=0).astype(N.float32)
+    pos = N.asarray(pos)
+    if pos.ndim==4:
+        np = N.shape(pos)[-1]
+        pos = pos.flatten().astype(N.float32)
+    else:
+        np = int(N.cbrt(N.shape(pos)[0]))
+        pos = N.concatenate((pos[:,0], pos[:,1], pos[:,2]), axis=0).astype(N.float32)
     sh = (ng, ng, ng,)
     dens = N.zeros(sh, dtype=N.float32).flatten()
-    pos = N.asarray(pos).flatten().astype(dtype=N.float32)
     pos[pos == boxsize] = 1.0e-06
     mas(ng, np, boxsize, pos, dens)
     dens = dens.reshape(sh)
