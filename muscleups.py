@@ -499,8 +499,8 @@ class muscleups(object):
         disp[N.where(disp < -self.boxsize / 2.0)] += self.boxsize
         del pos_ICs
         gc.collect()
-        grid_index = grid_index[:, 0] * grid**2 + \
-            grid_index[:, 1] * grid + grid_index[:, 2]
+        grid_index = grid_index[:, 0] * self.ng**2 + \
+            grid_index[:, 1] * self.ng + grid_index[:, 2]
         indexes2 = N.argsort(grid_index)
         del grid_index
         gc.collect()
