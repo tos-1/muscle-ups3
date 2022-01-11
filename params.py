@@ -1,8 +1,6 @@
 #Quijote simulation
-boxsize = 100.
-ng = 128
-#ng = 512
-#box = 1000.
+ng = 512
+box = 1000.
 cosmology = 'ehu'
 Omega_m = 0.3175
 Omega_b = 0.049
@@ -23,3 +21,4 @@ exact_pk = True
 makeic = False
 return_pos = False
 extra_info=''
+binic = None

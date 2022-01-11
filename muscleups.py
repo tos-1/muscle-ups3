@@ -86,6 +86,7 @@ class muscleups(object):
             self.seed = params.seed
             self.exact_pk = params.exact_pk
             self.mpx = 1  # remove in the future
+            self.binic = params.binic
         else:
             print("parsing the parameters")
             self.ng = int(ng)
@@ -104,6 +105,7 @@ class muscleups(object):
             self.seed = seed
             self.exact_pk = exact_pk
             self.mpx = 1  # remove in the future
+            self.binic = binic
 
         self.makeic = makeic
         if self.makeic:
@@ -111,7 +113,6 @@ class muscleups(object):
                 raise ValueError(
                     "for initial conditions you need z_pk=redshift")
 
-        self.binic = binic
         if self.binic is not None:
             try:
                 import readgadget
