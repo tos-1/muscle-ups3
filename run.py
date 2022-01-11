@@ -37,6 +37,6 @@ args = vars(parser.parse_args())
 print('the scheme you chose was', args['scheme'])
 
 MSC = muscleups( cosmology = args['cosmology'], h = args['hubble'] , omega_b = args['omega_b'] , Omega_cdm = args['Omega_cdm'], ns = args['ns'] , sigma8 =args['s8'] , z_pk = args['z_pk'], redshift = args['redshift'], sigmaalpt = args['sigmaalpt'], scheme =args['scheme'], ng = args['ng'] ,boxsize = args['box'] ,smallscheme = args['smallscheme'] ,
-makeic = args['makeic'], return_pos=args['return_pos'],threads = args['threads'] , extra_info = args['extra'] ,seed=args['seed'], exact_pk=args['exact_pk'], paramfile=args['paramfile'],binic=binic['binic'] )
+makeic = args['makeic'], return_pos=args['return_pos'],threads = args['threads'] , extra_info = args['extra'] ,seed=args['seed'], exact_pk=args['exact_pk'], paramfile=args['paramfile'],binic=args['binic'] )
 
 MSC.generate()

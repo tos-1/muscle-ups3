@@ -1,6 +1,6 @@
 #Quijote simulation
 ng = 512
-box = 1000.
+boxsize = 1000.
 cosmology = 'ehu'
 Omega_m = 0.3175
 Omega_b = 0.049
