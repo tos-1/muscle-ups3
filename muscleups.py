@@ -7,7 +7,10 @@ import warnings
 import multiprocessing
 from ext._Paint import Paint
 from ext._halomodel import halomodel
-
+try:
+    import readgadget
+except ImportError:
+        print"not possible to import readgadget to read binaries of initial conditions")
 
 class muscleups(object):
     '''
@@ -114,11 +117,9 @@ class muscleups(object):
                     "for initial conditions you need z_pk=redshift")
 
         if self.binic is not None:
-            try:
-                import readgadget
-            except ImportError:
+            if 'readgadget' not in sys.modules:
                 raise ImportError(
-                    "not able to import readgadget to read binaries of initial conditions")
+                    "readgadget was not imported. Not able to import readgadget to read binaries of initial conditions")
 
         # for fftw
         self.threads = threads
@@ -479,26 +480,26 @@ class muscleups(object):
             self.binic, "POS ", ptype) / 1e3  # Mpc/h
         IDs_ICs = readgadget.read_block(
             self.binic, "ID  ", ptype) - 1  # IDs begin from 0
-        indexes = np.argsort(IDs_ICs)
+        indexes = N.argsort(IDs_ICs)
         pos_ICs = pos_ICs[indexes]
         return pos_ICs
 
     def get_disp(self):
         pos_ICs = self.get_pos_ics()
         grid_index = (
-            np.round(
+            N.round(
                 (pos_ICs / self.boxsize) * self.ng,
                 decimals=0)).astype(
-            np.int32)
-        grid_index[np.where(grid_index == self.ng)] = 0
+            N.int32)
+        grid_index[N.where(grid_index == self.ng)] = 0
         disp = pos_ICs - grid_index * self.boxsize / self.ng
-        disp[np.where(disp > self.boxsize / 2.0)] -= self.boxsize
-        disp[np.where(disp < -self.boxsize / 2.0)] += self.boxsize
+        disp[N.where(disp > self.boxsize / 2.0)] -= self.boxsize
+        disp[N.where(disp < -self.boxsize / 2.0)] += self.boxsize
         del pos_ICs
         gc.collect()
         grid_index = grid_index[:, 0] * grid**2 + \
             grid_index[:, 1] * grid + grid_index[:, 2]
-        indexes2 = np.argsort(grid_index)
+        indexes2 = N.argsort(grid_index)
         del grid_index
         gc.collect()
         disp = disp[indexes2]
@@ -506,19 +507,19 @@ class muscleups(object):
 
     def get_ini(self):
         disp = self.get_disp()
-        disp = np.reshape(disp, (self.ng, self.ng, self.ng, 3))
-        disp = np.rollaxis(disp, -1)
+        disp = N.reshape(disp, (self.ng, self.ng, self.ng, 3))
+        disp = N.rollaxis(disp, -1)
 
         # divergence
         for i in range(3):
-            disp[i] = (2. / 3. * (np.roll(disp[i], -1, i) - np.roll(disp[i], 1, i)) - 1. /
-                       12. * (np.roll(disp[i], -2, i) - np.roll(disp[i], 2, i))) / self.cellsize
+            disp[i] = (2. / 3. * (N.roll(disp[i], -1, i) - N.roll(disp[i], 1, i)) - 1. /
+                       12. * (N.roll(disp[i], -2, i) - N.roll(disp[i], 2, i))) / self.cellsize
 
         delta_ini = -(disp[0] + disp[1] + disp[2])
         return delta_ini
 
     def load_dk(self):
-        d = self.get_psi()
+        d = self.get_ini()
         dk = N.fft.rfftn(d)
         return dk
 
@@ -689,30 +690,30 @@ class muscleups(object):
         from BGC2 import only_id
 
         def halo_particles():
-            halos = np.empty((1, 3))
+            halos = N.empty((1, 3))
             particles = []
             for num in range(8):
                 input_file = '/home/wp3i/Quijote/10000/rockstar_halos/halos_0.' + \
                     str(num) + '.bgc2'
                 _halos, _particles = only_id(input_file)
-                particles = np.concatenate((particles, _particles), axis=0)
-                halos = np.concatenate((halos, _halos), axis=0)
+                particles = N.concatenate((particles, _particles), axis=0)
+                halos = N.concatenate((halos, _halos), axis=0)
             halos = halos[1:]
             return particles, halos
 
-        halonum = np.zeros(ng**3, dtype=np.int32)
+        halonum = N.zeros(ng**3, dtype=N.int32)
 
         def _halonum():
             global halonum
             halo_particles, halo_id = halo_particles()
-            for j in range(np.shape(halo_particles)[0]):
-                hp = np.asarray(halo_particles[j]) - 1
+            for j in range(N.shape(halo_particles)[0]):
+                hp = N.asarray(halo_particles[j]) - 1
                 halonum[hp] = halo_id[j, 0]
             return halonum
 
         halonum = _halonum()
         psi_sc = psi_sc.flatten()
-        psi_sc = np.where(halonum != 0, -3.0, psi_sc)
+        psi_sc = N.where(halonum != 0, -3.0, psi_sc)
 
         psi_sc[psi_sc != -3.0] -= N.mean(psi_sc,
                                          axis=None) / len(psi_sc[psi_sc != -3.0])
