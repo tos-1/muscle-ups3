@@ -2,9 +2,12 @@
 #SBATCH --job-name=muscleups
 #SBATCH --output=job_mup.out
 #SBATCH --error=job_mup.err
-# -N 1
+#SBATCH --mem=16000MB
 #SBATCH -n 1
-# -w node2
+#SBATCH -p squire8
+# -w node8
 
+source ../venv/bin/activate
 srun python run.py -paramfile='params.py' 
+deactivate
 
