@@ -705,7 +705,7 @@ class muscleups(object):
             halos = halos[1:]
             return particles, halos
 
-        halonum = N.zeros(ng**3, dtype=N.int32)
+        halonum = N.zeros(self.ng**3, dtype=N.int32)
 
         def _halonum():
             global halonum
