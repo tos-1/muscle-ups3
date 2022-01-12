@@ -13,6 +13,7 @@ z_pk = 127.0
 redshift = 0.0
 sigmaalpt = 4.0
 scheme = '2lpt'
+#'Rockstar'
 smallscheme = None
 threads = 1
 extra = ''
@@ -22,3 +23,4 @@ makeic = False
 return_pos = False
 extra_info=''
 binic = None
+#'/home/wp3i/Quijote/10000/ICs/ics'
