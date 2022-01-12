@@ -12,7 +12,7 @@ from ext._halomodel import halomodel
 try:
     import readgadget
 except ImportError:
-        print"not possible to import readgadget to read binaries of initial conditions")
+        print("not possible to import readgadget to read binaries of initial conditions")
 
 class muscleups(object):
     '''
@@ -45,74 +45,75 @@ class muscleups(object):
 
     def __init__(
             self,
-            cosmology='ehu',
-            h=0.7,
-            omega_b=0.0225,
-            Omega_cdm=0.25,
-            ns=0.96,
-            sigma8=0.8,
-            z_pk=50.,
-            redshift=0.,
-            ng=64,
-            boxsize=64,
-            sigmaalpt=4.,
-            scheme='zeld',
-            smallscheme=None,
-            makeic=False,
-            return_pos=True,
-            threads=1,
-            extra_info='',
-            seed=1,
-            binic=None,
-            exact_pk=True,
-            paramfile=None):
+            cosmology = 'ehu',
+            h = 0.7,
+            omega_b = 0.0225,
+            Omega_cdm = 0.25,
+            ns = 0.96,
+            sigma8 = 0.8,
+            z_pk = 50.,
+            redshift = 0.,
+            ng = 64,
+            boxsize = 64,
+            sigmaalpt = 4.,
+            scheme = 'zeld',
+            smallscheme = None,
+            makeic = False,
+            return_pos = True,
+            threads = 1,
+            extra_info = '',
+            seed = 1,
+            binic = None,
+            exact_pk = True,
+            paramfile = None):
 
+        self.paramfile = paramfile
         if paramfile is not None:
             try:
-                params = __import__(os.path.splitext(paramfile)[0])
+                params=__import__(os.path.splitext(paramfile)[0])
             except ImportError:
                 raise ImportError(
                     "not able to import param file")
 
             print("reading the parameters from params.py")
-            self.ng = int(params.ng)
-            self.thirdim = self.ng // 2 + 1
-            self.boxsize = float(params.boxsize)
-            self.cellsize = params.boxsize / float(params.ng)
-            self.h = float(params.hubble)
-            self.redshift = float(params.redshift)
-            self.z_pk = float(params.z_pk)
-            self.sigmaalpt = float(params.sigmaalpt)
-            self.ns = float(params.ns)
-            self.scheme = params.scheme
-            self.smallscheme = params.smallscheme
-            self.return_pos = params.return_pos
-            self.extra_info = params.extra_info
-            self.seed = params.seed
-            self.exact_pk = params.exact_pk
-            self.mpx = 1  # remove in the future
-            self.binic = params.binic
+            self.ng=int(params.ng)
+            self.thirdim=self.ng // 2 + 1
+            self.boxsize=float(params.boxsize)
+            self.cellsize=params.boxsize / float(params.ng)
+            self.h=float(params.hubble)
+            self.redshift=float(params.redshift)
+            self.z_pk=float(params.z_pk)
+            self.sigmaalpt=float(params.sigmaalpt)
+            self.ns=float(params.ns)
+            self.scheme=params.scheme
+            self.smallscheme=params.smallscheme
+            self.return_pos=params.return_pos
+            self.extra_info=params.extra_info
+            self.seed=params.seed
+            self.exact_pk=params.exact_pk
+            self.mpx=1  # remove in the future
+            self.binic=params.binic
         else:
             print("parsing the parameters")
-            self.ng = int(ng)
-            self.thirdim = self.ng // 2 + 1
-            self.boxsize = float(boxsize)
-            self.cellsize = boxsize / float(ng)
-            self.h = float(h)
-            self.redshift = float(redshift)
-            self.z_pk = float(z_pk)
-            self.sigmaalpt = float(sigmaalpt)
-            self.ns = float(ns)
-            self.scheme = scheme
-            self.smallscheme = smallscheme
-            self.return_pos = return_pos
-            self.extra_info = extra_info
-            self.seed = seed
-            self.exact_pk = exact_pk
-            self.mpx = 1  # remove in the future
-            self.binic = binic
+            self.ng=int(ng)
+            self.thirdim=self.ng // 2 + 1
+            self.boxsize=float(boxsize)
+            self.cellsize=boxsize / float(ng)
+            self.h=float(h)
+            self.redshift=float(redshift)
+            self.z_pk=float(z_pk)
+            self.sigmaalpt=float(sigmaalpt)
+            self.ns=float(ns)
+            self.scheme=scheme
+            self.smallscheme=smallscheme
+            self.return_pos=return_pos
+            self.extra_info=extra_info
+            self.seed=seed
+            self.exact_pk=exact_pk
+            self.mpx=1  # remove in the future
+            self.binic=binic
 
-        self.makeic = makeic
+        self.makeic=makeic
         if self.makeic:
             if not z_pk == redshift:
                 raise ValueError(
@@ -124,8 +125,8 @@ class muscleups(object):
                     "readgadget was not imported. Not able to import readgadget to read binaries of initial conditions")
 
         # for fftw
-        self.threads = threads
-        cpus = multiprocessing.cpu_count()
+        self.threads=threads
+        cpus=multiprocessing.cpu_count()
         if not cpus >= threads:
             raise ValueError(
                 "requested a number of threads > than available cpus")
@@ -194,7 +195,8 @@ class muscleups(object):
             ngrid=self.ng,
             hubble=self.C.h,
             Omega0=self.C.Omega_0,
-            makeic=self.makeic)
+            makeic=self.makeic,
+            paramfile=self.paramfile)
 
         path_to_halocatalogue = path + fileroot
 

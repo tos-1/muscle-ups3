@@ -3,7 +3,7 @@
 """
 import numpy as N
 import os
-
+import shutil
 
 def writedir(sigmaalpt,
              extra_info,
@@ -12,7 +12,7 @@ def writedir(sigmaalpt,
              redshift=50.,
              boxsize=256.,
              ngrid=256,
-             hubble=.7, Omega0=0.3, makeic=False):
+             hubble=.7, Omega0=0.3, makeic=False, paramfile=None):
     '''
     it returns the path and it creates the output directory where to save the binaries
     '''
@@ -71,7 +71,8 @@ def writedir(sigmaalpt,
             sep = '__'
             fileroot_out = fileroot_out.split(sep, 1)[0]
             fileroot_out = fileroot_out + sep + str(p)
-
+        if paramfile is not None:
+            shutil.copyfile(paramfile, folder_scheme + 'params_' + fileroot_out + '.txt')
         return folder_scheme, fileroot_out
 
 
