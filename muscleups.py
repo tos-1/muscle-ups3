@@ -385,6 +385,8 @@ class muscleups(object):
                 print("using Rockstar")
                 psi_tza = pyfftw.empty_aligned(self.shr, dtype='float32')
                 psi_tza_k = pyfftw.empty_aligned(self.shc, dtype='complex64')
+                fft_tza = pyfftw.FFTW(
+                    psi_tza, psi_tza_k, direction='FFTW_FORWARD', axes=[ 0, 1, 2])
                 psi_tza = self.Rockstar(dk)
                 psi_tza_k = fft_tza(psi_tza)
                 disp_field = self.invdiv(psi_tza_k)
@@ -693,7 +695,7 @@ class muscleups(object):
 
         from BGC2 import only_id
 
-        def halo_particles():
+        def _halo_particles():
             halos = N.empty((1, 3))
             particles = []
             for num in range(8):
@@ -705,11 +707,9 @@ class muscleups(object):
             halos = halos[1:]
             return particles, halos
 
-        halonum = N.zeros(self.ng**3, dtype=N.int32)
-
         def _halonum():
-            global halonum
-            halo_particles, halo_id = halo_particles()
+            halonum = N.zeros(self.ng**3, dtype=N.int32)
+            halo_particles, halo_id = _halo_particles()
             for j in range(N.shape(halo_particles)[0]):
                 hp = N.asarray(halo_particles[j]) - 1
                 halonum[hp] = halo_id[j, 0]
