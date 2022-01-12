@@ -3,12 +3,12 @@
 #include "masHalos.h"
 #define min(A,B) (((A)<(B)) ? (A):(B))
 
-void masHalos( int ng, int nH, double boxsize, double *pos, double *density, int *Nx){
-  double cell_len= boxsize/(double)ng;
-  double dngx,dngy,dngz;
+void masHalos( int ng, int nH, double boxsize, float *pos, float *density, int *Nx){
+  float cell_len= (float) boxsize/(float) ng;
+  float dngx,dngy,dngz;
   int NG = ng*ng*ng;   //number of grid cells
-  double x,y,z;
-  double minden=0.;
+  float x,y,z;
+  float minden=0.;
   int cell[3];
   int index, i, count=0;
   int nx, avgnx=0;
@@ -27,9 +27,9 @@ void masHalos( int ng, int nH, double boxsize, double *pos, double *density, int
     cell[1]=(int) floor(y/cell_len);
     cell[2]=(int) floor(z/cell_len);
 
-    dngx = x/(cell_len) - (double)cell[0];
-    dngy = y/(cell_len) - (double)cell[1];
-    dngz = z/(cell_len) - (double)cell[2];
+    dngx = x/(cell_len) - (float)cell[0];
+    dngy = y/(cell_len) - (float)cell[1];
+    dngz = z/(cell_len) - (float)cell[2];
 
     index = cell[2] + ng * cell[1] + ng*ng* cell[0];
     *(density+index) += nx * (1-dngx)*(1-dngy)*(1-dngz);

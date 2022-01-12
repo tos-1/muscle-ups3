@@ -13,8 +13,8 @@ static PyObject* masHalos_masHalos(PyObject* self, PyObject* args){
        	return NULL;
 
     /* Interpret the input objects as numpy arrays. */
-    PyObject *pos_array = PyArray_FROM_OTF(pos_obj, NPY_DOUBLE, NPY_IN_ARRAY);
-    PyObject *d_array = PyArray_FROM_OTF(d_obj, NPY_DOUBLE, NPY_IN_ARRAY);
+    PyObject *pos_array = PyArray_FROM_OTF(pos_obj, NPY_FLOAT, NPY_IN_ARRAY);
+    PyObject *d_array = PyArray_FROM_OTF(d_obj, NPY_FLOAT, NPY_IN_ARRAY);
     PyObject *Nx_array = PyArray_FROM_OTF(Nx_obj, NPY_INT32, NPY_IN_ARRAY);
 
     /* If that didn't work, throw an exception. */
@@ -26,8 +26,8 @@ static PyObject* masHalos_masHalos(PyObject* self, PyObject* args){
     }
 
     /* Get pointers to the data as C-types. */
-    double *pos = (double*)PyArray_DATA(pos_array);
-    double *density = (double*)PyArray_DATA(d_array);
+    float *pos = (float*)PyArray_DATA(pos_array);
+    float *density = (float*)PyArray_DATA(d_array);
     int *Nx = (int*)PyArray_DATA(Nx_array);
 
     masHalos( ng, nH, boxsize, pos, density, Nx);

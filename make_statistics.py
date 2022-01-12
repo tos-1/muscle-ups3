@@ -303,7 +303,7 @@ def MASHalos(folder, boxsize, ng, minpart=20):
     # halocat = N.empty(nhalos, dtype=[('Position', ('f8', 3)), ('Velocity',
     # ('f8', 3)), ('Np', 'i4')])
     Nparticles = N.asarray(halos[:, 2], dtype=N.int32)
-    posHC = N.asarray(halos[:, 6:9], dtype=N.float64)
+    posHC = N.asarray(halos[:, 6:9], dtype=N.float32)
     del halos
     import gc
     gc.collect()
@@ -317,8 +317,8 @@ def MASHalos(folder, boxsize, ng, minpart=20):
     posHC = N.concatenate((posHCx, posHCy, posHCz), axis=0)
 
     sh = (ng, ng, ng,)
-    densH = N.zeros(sh, dtype=N.float64).flatten()
-    posHC = N.asarray(posHC).astype(dtype=N.float64)
+    densH = N.zeros(sh, dtype=N.float32).flatten()
+    posHC = N.asarray(posHC).astype(dtype=N.float32)
     posHC[posHC == boxsize] = 1.0e-06
     masHalos(ng, Nhalos, boxsize, posHC, densH, Nparticles)
     densH = densH.reshape(sh)
