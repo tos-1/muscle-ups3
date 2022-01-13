@@ -1,7 +1,6 @@
 """ Utility functions for analyzing results from muscle-ups """
 import numpy as N
 import os
-import matplotlib.pyplot as plt
 from ext._mas import mas
 from ext._masHalos import masHalos
 from BGC2 import read_bgc2
