@@ -91,8 +91,8 @@ def PlotMatterSpectra():
 
     return
 
-def plot_snaps():
-    """ Eulerian positions snapshot """
+def plot_dens():
+    """ Eulerian density snapshot """
     NG = ng//2
     extent = 0.0, boxsize, 0.0, boxsize
     snaps_quijote = '/home/wp3i/Quijote/10000/snapdir_004/snap_004'
@@ -165,6 +165,78 @@ def plot_snaps():
     return
 
 
+def plot_snaps():
+
+    NG = ng
+    snaps_quijote = '/home/wp3i/Quijote/10000/snapdir_004/snap_004'
+    pos = get_pos(snaps_quijote, norma=1e+03)
+    pos = N.reshape(pos,(ng,ng,ng,3))
+    pos = N.rollaxis(pos,-1)
+    fig,ax = plt.subplots(nrows=1,ncols=1,figsize=(6,6))
+    ax.set_xlabel('x [Mpc/h]',fontsize='xx-large')
+    ax.set_ylabel('y [Mpc/h]',fontsize='xx-large')
+    ax.tick_params(direction='in', length=6, width=2, colors='k',
+            grid_color='k', grid_alpha=0.5,labelsize='x-large')
+    ax.scatter(pos[0][:,:,NG//2].flatten(),pos[1][:,:,NG//2].flatten(),s=.2,lw=0.,color='black')
+    ax.grid(ls='--',color='blue')
+    ax.set_xlim([0,boxsize])
+    ax.set_ylim([0,boxsize])
+    ax.set_title('Quijote', fontsize='x-large')
+    plt.savefig('images/lagslice_quijote.png',dpi=150)
+
+
+    sim = '/home/wp3i/Quijote/muscleups/sims/bx1000.0_ng512_z0.0_Om0.30/2lpt/z0.0__0.dat'
+    pos = get_pos(sim, norma=1.0)
+    pos = N.reshape(pos,(ng,ng,ng,3))
+    pos = N.rollaxis(pos,-1)
+    fig,ax = plt.subplots(nrows=1,ncols=1,figsize=(6,6))
+    ax.set_xlabel('x [Mpc/h]',fontsize='xx-large')
+    ax.set_ylabel('y [Mpc/h]',fontsize='xx-large')
+    ax.tick_params(direction='in', length=6, width=2, colors='k',
+            grid_color='k', grid_alpha=0.5,labelsize='x-large')
+    ax.scatter(pos[0][:,:,NG//2].flatten(),pos[1][:,:,NG//2].flatten(),s=.2,lw=0.,color='black')
+    ax.grid(ls='--',color='blue')
+    ax.set_xlim([0,boxsize])
+    ax.set_ylim([0,boxsize])
+    ax.set_title('2LPT', fontsize='x-large')
+    plt.savefig('images/lagslice_2lpt.png',dpi=150)
+
+
+    sim = '/home/wp3i/Quijote/muscleups/sims/bx1000.0_ng512_z0.0_Om0.30/alpt/z0.0sigmaalpt4.0__0.dat'
+    pos = get_pos(sim, norma=1.0)
+    pos = N.reshape(pos,(ng,ng,ng,3))
+    pos = N.rollaxis(pos,-1)
+    fig,ax = plt.subplots(nrows=1,ncols=1,figsize=(6,6))
+    ax.set_xlabel('x [Mpc/h]',fontsize='xx-large')
+    ax.set_ylabel('y [Mpc/h]',fontsize='xx-large')
+    ax.tick_params(direction='in', length=6, width=2, colors='k',
+	    grid_color='k', grid_alpha=0.5,labelsize='x-large')
+    ax.scatter(pos[0][:,:,NG//2].flatten(),pos[1][:,:,NG//2].flatten(),s=.2,lw=0.,color='black')
+    ax.grid(ls='--',color='blue')
+    ax.set_xlim([0,boxsize])
+    ax.set_ylim([0,boxsize])
+    ax.set_title('ALPT', fontsize='x-large')
+    plt.savefig('images/lagslice_alpt.png',dpi=150)
+
+
+    sim = '/home/wp3i/Quijote/muscleups/sims/bx1000.0_ng512_z0.0_Om0.30/Rockstar/z0.0__0.dat'
+    pos = get_pos(sim, norma=1.0)
+    pos = N.reshape(pos,(ng,ng,ng,3))
+    pos = N.rollaxis(pos,-1)
+    fig,ax = plt.subplots(nrows=1,ncols=1,figsize=(6,6))
+    ax.set_xlabel('x [Mpc/h]',fontsize='xx-large')
+    ax.set_ylabel('y [Mpc/h]',fontsize='xx-large')
+    ax.tick_params(direction='in', length=6, width=2, colors='k',
+	    grid_color='k', grid_alpha=0.5,labelsize='x-large')
+    ax.scatter(pos[0][:,:,NG//2].flatten(),pos[1][:,:,NG//2].flatten(),s=.2,lw=0.,color='black')
+    ax.grid(ls='--',color='blue')
+    ax.set_xlim([0,boxsize])
+    ax.set_ylim([0,boxsize])
+    ax.set_title('rockstar + muscleups', fontsize='x-large')
+    plt.savefig('images/lagslice_rockstar.png',dpi=150)
+    return
+
+
 #def haloStatistics(pathtobin, boxsize, ng, saveto=None):
 #    """ Compute statistics for dark matter from binary """
 #
@@ -211,5 +283,6 @@ def plot_snaps():
 if __name__ == "__main__":
     #ComputeMatterStats()
     #PlotMatterSpectra()
+    #plot_dens()
     plot_snaps()
     #haloStatistics('/home/federico/Quijote/snapdir_004/', 1000., 32, saveto=None)
