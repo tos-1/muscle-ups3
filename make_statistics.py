@@ -30,7 +30,7 @@ def getkgrid(boxsize, ng, what=None):
     kmin = 2 * N.pi / N.float(boxsize)
     thirdim = ng // 2 + 1
     sh = (ng, ng, thirdim)
-    kx, ky, kz = N.mgrid[0:sh[0], 0:sh[1], 0:sh[2]].astype(N.float64)
+    kx, ky, kz = N.mgrid[0:sh[0], 0:sh[1], 0:sh[2]].astype(N.float32)
 
     kx[N.where(kx > ng // 2)] -= ng
     ky[N.where(ky > ng // 2)] -= ng
