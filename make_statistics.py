@@ -6,6 +6,7 @@ from ext._mas import mas
 from ext._masHalos import masHalos
 from BGC2 import read_bgc2
 import readgadget
+import gc
 
 def get_pos(snapshot, norma=1e+03):
     ''' get the positions of particles from binaries
@@ -46,6 +47,9 @@ def getkgrid(boxsize, ng, what=None):
         return k
     elif what == 'all':
         return kx, ky, kz, k
+    elif what == 'cart':
+        return kx, ky, kz
+
 
 def fastXk(dk1=None, dk2=None, d1=None, d2=None, pos1=None,
            pos2=None, boxsize=None, nkbins=None, kb=0):
@@ -99,15 +103,8 @@ def fastXk(dk1=None, dk2=None, d1=None, d2=None, pos1=None,
     except:
         raise ValueError('the input field must have the same size')
 
-    kx,ky,kz,kgrid = getkgrid(boxsize, ng, what='all')
+    kgrid = getkgrid(boxsize, ng)
     norm = (boxsize / float(ng)**2.)**sh
-    kny = N.pi * ng / boxsize
-
-    if N.any(pos1 != None):
-        dk1 = dk1 / (N.sinc(kx/2./kny)*N.sinc(ky/2./kny)*N.sinc(kz/2./kny))**2.
-
-    if N.any(pos2 != None):
-        dk2 = dk2 / (N.sinc(kx/2./kny)*N.sinc(ky/2./kny)*N.sinc(kz/2./kny))**2.
 
     if nkbins == None:
         nkbins = ng // 2
@@ -177,12 +174,8 @@ def fastPk(d=None, dk=None, pos=None, boxsize=None, nkbins=None, kb=0):
 
     # ng = N.shape(dk)[0]
     sh = len(N.shape(dk))  # dimensions
-    kx,ky,kz,kgrid = getkgrid(boxsize, ng, what='all')
+    kgrid = getkgrid(boxsize, ng)
     norm = (boxsize / float(ng)**2.)**sh
-    kny = N.pi * ng / boxsize
-
-    if N.any(pos != None):
-        dk = dk / (N.sinc(kx/2./kny)*N.sinc(ky/2./kny)*N.sinc(kz/2./kny))**2.
 
     kgrid = kgrid.flatten()
     dk2 = abs(dk.flatten()) ** 2.
@@ -231,6 +224,14 @@ def MAS(pos, boxsize, ng):
     pos[pos == boxsize] = 1.0e-06
     mas(ng, np, boxsize, pos, dens)
     dens = dens.reshape(sh)
+    del pos
+    gc.collect()
+
+    dk = N.fft.rfftn(dens)
+    kx, ky, kz = getkgrid(boxsize, ng, what='cart')
+    kny = N.pi * ng / boxsize
+    dk = dk / (N.sinc(kx/2./kny)*N.sinc(ky/2./kny)*N.sinc(kz/2./kny))**2.
+    dens = N.fft.irfftn(dk)
 
     return dens
 
