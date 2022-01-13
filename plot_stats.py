@@ -91,6 +91,75 @@ def PlotMatterSpectra():
 
     return
 
+def plot_snaps():
+    """ Eulerian positions snapshot """
+
+    snaps_quijote = '/home/wp3i/Quijote/10000/snapdir_004/snap_004'
+    pos = get_pos(snaps_quijote, norma=1e+03)
+    d = MAS(pos, boxsize, ng//2)
+    fig,ax = plt.subplots(nrows=1,ncols=1,figsize=(6,6))
+    ax.set_xlabel('x [Mpc/h]',fontsize='xx-large')
+    ax.set_ylabel('y [Mpc/h]',fontsize='xx-large')
+    ax.tick_params(direction='in', length=6, width=2, colors='k',
+            grid_color='k', grid_alpha=0.5,labelsize='x-large')
+    im = ax.imshow(N.log(2.+d[ng//4,:,:]))
+    plt.colorbar(im)
+    ax.grid(ls='--',color='blue')
+    ax.set_xlim([0,ng])
+    ax.set_ylim([0,ng])
+    plt.savefig('images/density_quijote.png',dpi=150)
+
+
+    sim = '/home/wp3i/Quijote/muscleups/sims/bx1000.0_ng512_z0.0_Om0.30/2lpt/z0.0__0.dat'
+    pos = get_pos(sim, norma=1.0)
+    d = MAS(pos, boxsize, ng//2)
+    fig,ax = plt.subplots(nrows=1,ncols=1,figsize=(6,6))
+    ax.set_xlabel('x [Mpc/h]',fontsize='xx-large')
+    ax.set_ylabel('y [Mpc/h]',fontsize='xx-large')
+    ax.tick_params(direction='in', length=6, width=2, colors='k',
+            grid_color='k', grid_alpha=0.5,labelsize='x-large')
+    im = ax.imshow(N.log(2.+d[ng//4,:,:]))
+    plt.colorbar(im)
+    ax.grid(ls='--',color='blue')
+    ax.set_xlim([0,ng])
+    ax.set_ylim([0,ng])
+    plt.savefig('images/density_2lpt.png',dpi=150)
+
+
+    sim = '/home/wp3i/Quijote/muscleups/sims/bx1000.0_ng512_z0.0_Om0.30/alpt/z0.0sigmaalpt4.0__0.dat'
+    pos = get_pos(sim, norma=1.0)
+    d = MAS(pos, boxsize, ng//2)
+    fig,ax = plt.subplots(nrows=1,ncols=1,figsize=(6,6))
+    ax.set_xlabel('x [Mpc/h]',fontsize='xx-large')
+    ax.set_ylabel('y [Mpc/h]',fontsize='xx-large')
+    ax.tick_params(direction='in', length=6, width=2, colors='k',
+	    grid_color='k', grid_alpha=0.5,labelsize='x-large')
+    im = ax.imshow(N.log(2.+d[ng//4,:,:]))
+    plt.colorbar(im)
+    ax.grid(ls='--',color='blue')
+    ax.set_xlim([0,ng])
+    ax.set_ylim([0,ng])
+    plt.savefig('images/density_alpt.png',dpi=150)
+
+
+    sim = '/home/wp3i/Quijote/muscleups/sims/bx1000.0_ng512_z0.0_Om0.30/Rockstar/z0.0__0.dat'
+    pos = get_pos(sim, norma=1.0)
+    d = MAS(pos, boxsize, ng//2)
+    fig,ax = plt.subplots(nrows=1,ncols=1,figsize=(6,6))
+    ax.set_xlabel('x [Mpc/h]',fontsize='xx-large')
+    ax.set_ylabel('y [Mpc/h]',fontsize='xx-large')
+    ax.tick_params(direction='in', length=6, width=2, colors='k',
+	    grid_color='k', grid_alpha=0.5,labelsize='x-large')
+    im = ax.imshow(N.log(2.+d[ng//4,:,:]))
+    plt.colorbar(im)
+    ax.grid(ls='--',color='blue')
+    ax.set_xlim([0,ng])
+    ax.set_ylim([0,ng])
+    plt.savefig('images/density_rockstar.png',dpi=150)
+
+    return
+
+
 #def haloStatistics(pathtobin, boxsize, ng, saveto=None):
 #    """ Compute statistics for dark matter from binary """
 #
@@ -137,4 +206,5 @@ def PlotMatterSpectra():
 if __name__ == "__main__":
     ComputeMatterStats()
     PlotMatterSpectra()
+    plot_snaps()
     #haloStatistics('/home/federico/Quijote/snapdir_004/', 1000., 32, saveto=None)
