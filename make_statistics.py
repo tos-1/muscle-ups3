@@ -18,7 +18,7 @@ def get_pos(snapshot, norma=1e+03, binic=None):
     print('normalization of Gadget units=',norma)
     ptype = [1]    #1(CDM) 2(neutrinos)
     pos = readgadget.read_block(snapshot, "POS ", ptype)/norma #Mpc/h
-    IDs = readgadget.read_block(snapshot, "ID  ", ptype)-1   #IDs begin from 0
+    IDs = readgadget.read_block(snapshot, "ID  ", ptype)-1     #IDs begin from 0
     indexes = N.argsort(IDs)
     pos = pos[indexes]
 
@@ -44,6 +44,53 @@ def get_pos(snapshot, norma=1e+03, binic=None):
         indexes = N.argsort(grid_index)
         pos = pos[indexes]
     return pos
+
+def get_pos_ics(binic, ng=512, boxsize=1000., norma=1e+03):
+    ''' get the initial positions of particles from binaries
+	Inputs::
+	  snapshot: do not specify format, only root of the name, e.g. snap_004 for Quijote
+	  norma: the units of Gadget positions, either Mpc (norma=1), or kpc (norma=1e+03)
+          binic: flag of Quijote simulations
+    '''
+    # read the positions and IDs of the ICs
+    print('normalization of Gadget units=',norma)
+    ptype = [1]    #1(CDM) 2(neutrinos)
+    pos_ICs = readgadget.read_block(
+        binic, "POS ", ptype) / 1e3  # Mpc/h
+    IDs_ICs = readgadget.read_block(
+        binic, "ID  ", ptype) - 1  # IDs begin from 0
+    indexes = N.argsort(IDs_ICs)
+    pos_ICs = pos_ICs[indexes]
+
+    grid_index = ( N.round( (pos_ICs / boxsize) * ng,
+                  decimals=0 ) ).astype(N.int32)
+    gc.collect()
+    
+    grid_index[N.where(grid_index == ng)] = 0
+    grid_index = grid_index[:, 0] * ng**2 + \
+        grid_index[:, 1] * ng + grid_index[:, 2]
+
+    indexes = N.argsort(grid_index)
+    pos_ICs = pos_ICs[indexes]
+    return pos_ICs
+
+def get_psi( disp, boxsize=1000.):
+
+    disp[N.where(disp> boxsize/2.0)] -= boxsize
+    disp[N.where(disp<-boxsize/2.0)] += boxsize
+
+    ng = int(N.cbrt(N.shape(disp)[0]))
+    cellsize = boxsize / ng
+    disp = N.reshape(disp,(ng,ng,ng,3))
+    disp = N.rollaxis(disp,-1)
+
+    # partial derivatives
+    for i in range(3):
+        disp[i] = (2. / 3. * (N.roll(disp[i], -1, i) - N.roll(disp[i], 1, i)) - 1. /
+                   12. * (N.roll(disp[i], -2, i) - N.roll(disp[i], 2, i))) / cellsize
+    # divergence 
+    return disp[0] + disp[1] + disp[2]
+
 
 def getkgrid(boxsize, ng, what=None):
     '''

@@ -236,6 +236,80 @@ def plot_snaps():
     return
 
 
+def plot_psi():
+    """ plot of divergence of displacement field """
+    extent = 0.0, boxsize, 0.0, boxsize
+
+    pos_ics = get_pos_ics('/home/wp3i/Quijote/10000/ICs/ics', ng=512, boxsize=boxsize, norma=1e+03)
+
+    snaps_quijote = '/home/wp3i/Quijote/10000/snapdir_004/snap_004'
+    pos = get_pos(snaps_quijote, norma=1e+03, binic='/home/wp3i/Quijote/10000/ICs/ics')
+    psi = get_psi(pos-pos_ics, boxsize=boxsize )
+    fig,ax = plt.subplots(nrows=1,ncols=1,figsize=(6,6))
+    ax.set_xlabel('x [Mpc/h]',fontsize='xx-large')
+    ax.set_ylabel('y [Mpc/h]',fontsize='xx-large')
+    ax.tick_params(direction='in', length=6, width=2, colors='k',
+            grid_color='k', grid_alpha=0.5,labelsize='x-large')
+    im = ax.imshow(psi[ng//2,:,:],extent=extent)
+    plt.colorbar(im)
+    ax.grid(ls='--',color='blue')
+    ax.set_xlim([0,boxsize])
+    ax.set_ylim([0,boxsize])
+    ax.set_title('Quijote $\psi$', fontsize='x-large')
+    plt.savefig('images/psi_quijote.png',dpi=150)
+
+    sim = '/home/wp3i/Quijote/muscleups/sims/bx1000.0_ng512_z0.0_Om0.30/2lpt/z0.0__0.dat'
+    pos = get_pos(sim, norma=1.0)
+    psi = get_psi(pos-pos_ics, boxsize=boxsize )
+    fig,ax = plt.subplots(nrows=1,ncols=1,figsize=(6,6))
+    ax.set_xlabel('x [Mpc/h]',fontsize='xx-large')
+    ax.set_ylabel('y [Mpc/h]',fontsize='xx-large')
+    ax.tick_params(direction='in', length=6, width=2, colors='k',
+            grid_color='k', grid_alpha=0.5,labelsize='x-large')
+    im = ax.imshow(psi[ng//2,:,:],extent=extent)
+    plt.colorbar(im)
+    ax.grid(ls='--',color='blue')
+    ax.set_xlim([0,boxsize])
+    ax.set_ylim([0,boxsize])
+    ax.set_title('2LPT $\psi$', fontsize='x-large')
+    plt.savefig('images/psi_2lpt.png',dpi=150)
+
+
+    sim = '/home/wp3i/Quijote/muscleups/sims/bx1000.0_ng512_z0.0_Om0.30/alpt/z0.0sigmaalpt4.0__0.dat'
+    pos = get_pos(sim, norma=1.0)
+    psi = get_psi(pos-pos_ics, boxsize=boxsize )
+    fig,ax = plt.subplots(nrows=1,ncols=1,figsize=(6,6))
+    ax.set_xlabel('x [Mpc/h]',fontsize='xx-large')
+    ax.set_ylabel('y [Mpc/h]',fontsize='xx-large')
+    ax.tick_params(direction='in', length=6, width=2, colors='k',
+            grid_color='k', grid_alpha=0.5,labelsize='x-large')
+    im = ax.imshow(psi[ng//2,:,:],extent=extent)
+    plt.colorbar(im)
+    ax.grid(ls='--',color='blue')
+    ax.set_xlim([0,boxsize])
+    ax.set_ylim([0,boxsize])
+    ax.set_title('ALPT $\psi$', fontsize='x-large')
+    plt.savefig('images/psi_alpt.png',dpi=150)
+
+
+    sim = '/home/wp3i/Quijote/muscleups/sims/bx1000.0_ng512_z0.0_Om0.30/Rockstar/z0.0__0.dat'
+    pos = get_pos(sim, norma=1.0)
+    psi = get_psi(pos-pos_ics, boxsize=boxsize )
+    fig,ax = plt.subplots(nrows=1,ncols=1,figsize=(6,6))
+    ax.set_xlabel('x [Mpc/h]',fontsize='xx-large')
+    ax.set_ylabel('y [Mpc/h]',fontsize='xx-large')
+    ax.tick_params(direction='in', length=6, width=2, colors='k',
+            grid_color='k', grid_alpha=0.5,labelsize='x-large')
+    im = ax.imshow(psi[ng//2,:,:],extent=extent)
+    plt.colorbar(im)
+    ax.grid(ls='--',color='blue')
+    ax.set_xlim([0,boxsize])
+    ax.set_ylim([0,boxsize])
+    ax.set_title('rockstar + muscleups $\psi$', fontsize='x-large')
+    plt.savefig('images/psi_rockstar.png',dpi=150)
+    return
+
+
 #def haloStatistics(pathtobin, boxsize, ng, saveto=None):
 #    """ Compute statistics for dark matter from binary """
 #
@@ -284,4 +358,5 @@ if __name__ == "__main__":
     PlotMatterSpectra()
     plot_dens()
     plot_snaps()
+    plot_psi()
     #haloStatistics('/home/federico/Quijote/snapdir_004/', 1000., 32, saveto=None)
