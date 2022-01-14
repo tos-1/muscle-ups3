@@ -95,6 +95,7 @@ def plot_dens():
     """ Eulerian density snapshot """
     NG = ng//2
     extent = 0.0, boxsize, 0.0, boxsize
+
     snaps_quijote = '/home/wp3i/Quijote/10000/snapdir_004/snap_004'
     pos = get_pos(snaps_quijote, norma=1e+03)
     d = MAS(pos, boxsize, NG)
@@ -110,7 +111,6 @@ def plot_dens():
     ax.set_ylim([0,boxsize])
     ax.set_title('Quijote density', fontsize='x-large')
     plt.savefig('images/density_quijote.png',dpi=150)
-
 
     sim = '/home/wp3i/Quijote/muscleups/sims/bx1000.0_ng512_z0.0_Om0.30/2lpt/z0.0__0.dat'
     pos = get_pos(sim, norma=1.0)
@@ -136,7 +136,7 @@ def plot_dens():
     ax.set_xlabel('x [Mpc/h]',fontsize='xx-large')
     ax.set_ylabel('y [Mpc/h]',fontsize='xx-large')
     ax.tick_params(direction='in', length=6, width=2, colors='k',
-	    grid_color='k', grid_alpha=0.5,labelsize='x-large')
+            grid_color='k', grid_alpha=0.5,labelsize='x-large')
     im = ax.imshow(N.log(2.+d[NG//2,:,:]),extent=extent)
     plt.colorbar(im)
     ax.grid(ls='--',color='blue')
@@ -153,7 +153,7 @@ def plot_dens():
     ax.set_xlabel('x [Mpc/h]',fontsize='xx-large')
     ax.set_ylabel('y [Mpc/h]',fontsize='xx-large')
     ax.tick_params(direction='in', length=6, width=2, colors='k',
-	    grid_color='k', grid_alpha=0.5,labelsize='x-large')
+            grid_color='k', grid_alpha=0.5,labelsize='x-large')
     im = ax.imshow(N.log(2.+d[NG//2,:,:]),extent=extent)
     plt.colorbar(im)
     ax.grid(ls='--',color='blue')
@@ -161,7 +161,6 @@ def plot_dens():
     ax.set_ylim([0,boxsize])
     ax.set_title('rockstar + muscleups density', fontsize='x-large')
     plt.savefig('images/density_rockstar.png',dpi=150)
-
     return
 
 
@@ -169,7 +168,7 @@ def plot_snaps():
 
     NG = ng
     snaps_quijote = '/home/wp3i/Quijote/10000/snapdir_004/snap_004'
-    pos = get_pos(snaps_quijote, norma=1e+03)
+    pos = get_pos(snaps_quijote, norma=1e+03, binic='/home/wp3i/Quijote/10000/ICs/ics')
     pos = N.reshape(pos,(ng,ng,ng,3))
     pos = N.rollaxis(pos,-1)
     fig,ax = plt.subplots(nrows=1,ncols=1,figsize=(6,6))
@@ -210,7 +209,7 @@ def plot_snaps():
     ax.set_xlabel('x [Mpc/h]',fontsize='xx-large')
     ax.set_ylabel('y [Mpc/h]',fontsize='xx-large')
     ax.tick_params(direction='in', length=6, width=2, colors='k',
-	    grid_color='k', grid_alpha=0.5,labelsize='x-large')
+            grid_color='k', grid_alpha=0.5,labelsize='x-large')
     ax.scatter(pos[0][:,:,NG//2].flatten(),pos[1][:,:,NG//2].flatten(),s=.2,lw=0.,color='black')
     ax.grid(ls='--',color='blue')
     ax.set_xlim([0,boxsize])
@@ -227,7 +226,7 @@ def plot_snaps():
     ax.set_xlabel('x [Mpc/h]',fontsize='xx-large')
     ax.set_ylabel('y [Mpc/h]',fontsize='xx-large')
     ax.tick_params(direction='in', length=6, width=2, colors='k',
-	    grid_color='k', grid_alpha=0.5,labelsize='x-large')
+            grid_color='k', grid_alpha=0.5,labelsize='x-large')
     ax.scatter(pos[0][:,:,NG//2].flatten(),pos[1][:,:,NG//2].flatten(),s=.2,lw=0.,color='black')
     ax.grid(ls='--',color='blue')
     ax.set_xlim([0,boxsize])
@@ -281,8 +280,8 @@ def plot_snaps():
 #    return
 
 if __name__ == "__main__":
-    #ComputeMatterStats()
-    #PlotMatterSpectra()
-    #plot_dens()
+    ComputeMatterStats()
+    PlotMatterSpectra()
+    plot_dens()
     plot_snaps()
     #haloStatistics('/home/federico/Quijote/snapdir_004/', 1000., 32, saveto=None)
