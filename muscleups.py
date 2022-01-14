@@ -237,7 +237,7 @@ class muscleups(object):
         if not self.makeic:
             vel = N.zeros_like(pos)
 
-        ids = self.get_ids()
+        #ids = self.get_ids()
         gadgetutils.writegadget(
             pos,
             vel,
@@ -248,7 +248,7 @@ class muscleups(object):
             self.C.h,
             path,
             fileroot,
-            id=ids)
+            id=None)
         print('written binaries in', path + fileroot + '.dat')
 
         if self.return_pos:
@@ -514,6 +514,28 @@ class muscleups(object):
         IDs_ICs = IDs_ICs[indexes2]
         return IDs_ICs
 
+    def get_lagindexes(self):
+        ptype = [1]  # cdm
+        pos_ICs = readgadget.read_block(
+            self.binic, "POS ", ptype) / 1e3  # Mpc/h
+        IDs_ICs = readgadget.read_block(
+            self.binic, "ID  ", ptype) - 1  # IDs begin from 0
+        indexes = N.argsort(IDs_ICs)
+        pos_ICs = pos_ICs[indexes]
+        IDs_ICs = IDs_ICs[indexes]
+
+        grid_index = ( N.round( (pos_ICs / self.boxsize) * self.ng,
+                      decimals=0 ) ).astype(N.int32)
+        del pos_ICs
+        gc.collect()
+
+        grid_index[N.where(grid_index == self.ng)] = 0
+        grid_index = grid_index[:, 0] * self.ng**2 + \
+            grid_index[:, 1] * self.ng + grid_index[:, 2]
+
+        indexes2 = N.argsort(grid_index)
+        return indexes2
+
     def get_disp(self):
         pos_ICs = self.get_pos_ics()
         grid_index = ( N.round( (pos_ICs / self.boxsize) * self.ng,
@@ -736,12 +758,17 @@ class muscleups(object):
                 halonum[hp] = halo_id[j, 0]
             return halonum
 
-        halonum = _halonum()
+        def lag_halonum():
+            halonum = _halonum()
+            indexes2 = self.get_lagindexes()
+            halonum = halonum[indexes2]
+            return halonum
+
+        halonum = lag_halonum()
         psi_sc = psi_sc.flatten()
         psi_sc = N.where(halonum != 0, -3.0, psi_sc)
 
-        psi_sc[psi_sc != -3.0] -= N.mean(psi_sc,
-                                         axis=None) / len(psi_sc[psi_sc != -3.0])
+        psi_sc[psi_sc != -3.0] -= N.mean(psi_sc, axis=None) / len(psi_sc[psi_sc != -3.0])
         psi_sc = psi_sc.reshape(self.shr)
 
         psik_sc = N.fft.rfftn(psi_sc)
