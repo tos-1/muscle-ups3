@@ -7,11 +7,12 @@ from BGC2 import read_bgc2
 import readgadget
 import gc
 
-def get_pos(snapshot, norma=1e+03):
+def get_pos(snapshot, norma=1e+03, binic=None):
     ''' get the positions of particles from binaries
 	Inputs::
 	  snapshot: do not specify format, only root of the name, e.g. snap_004 for Quijote
 	  norma: the units of Gadget positions, either Mpc (norma=1), or kpc (norma=1e+03)
+          binic: flag of Quijote simulations
     '''
     # read the positions and IDs of the ICs
     print('normalization of Gadget units=',norma)
@@ -21,6 +22,27 @@ def get_pos(snapshot, norma=1e+03):
     indexes = N.argsort(IDs)
     pos = pos[indexes]
 
+    if binic is not None:
+        ng = 512
+        boxsize = 1000.
+        pos_ICs = readgadget.read_block(
+            binic, "POS ", ptype) / 1e3  # Mpc/h
+        IDs_ICs = readgadget.read_block(
+            binic, "ID  ", ptype) - 1  # IDs begin from 0
+        indexes = N.argsort(IDs_ICs)
+        pos_ICs = pos_ICs[indexes]
+
+        grid_index = ( N.round( (pos_ICs / boxsize) * ng,
+                      decimals=0 ) ).astype(N.int32)
+        del pos_ICs, IDs_ICs
+        gc.collect()
+        
+        grid_index[N.where(grid_index == ng)] = 0
+        grid_index = grid_index[:, 0] * ng**2 + \
+            grid_index[:, 1] * ng + grid_index[:, 2]
+        
+        indexes = N.argsort(grid_index)
+        pos = pos[indexes]
     return pos
 
 def getkgrid(boxsize, ng, what=None):
@@ -229,6 +251,16 @@ def MAS(pos, boxsize, ng):
     dk = N.fft.rfftn(dens)
     kx, ky, kz = getkgrid(boxsize, ng, what='cart')
     kny = N.pi * ng / boxsize
+
+    #wx=(N.sin(kx*N.pi/(2*kny))/kx*N.pi/(2*kny))**2
+    #wx[N.where(kx==0.)]=1.0
+    #wy=(N.sin(ky*N.pi/(2*kny))/ky*N.pi/(2*kny))**2
+    #wy[N.where(ky==0.)]=1.0
+    #wz=(N.sin(kz*N.pi/(2*kny))/kz*N.pi/(2*kny))**2
+    #wz[N.where(kz==0.)]=1.0
+    #ww=wx*wy*wz
+    #dk = dk / ww (N.sinc(kx/2./kny)*N.sinc(ky/2./kny)*N.sinc(kz/2./kny))**2.
+
     dk = dk / (N.sinc(kx/2./kny)*N.sinc(ky/2./kny)*N.sinc(kz/2./kny))**2.
     dens = N.fft.irfftn(dk)
 
