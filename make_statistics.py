@@ -78,7 +78,7 @@ def fastXk(dk1=None, dk2=None, d1=None, d2=None, pos1=None,
         dk1 = N.fft.rfftn(d1)
     else:
         ng1 = N.shape(dk1)[0]
-        sh = (ng1, ng1, ng1 / 2 + 1)
+        sh = (ng1, ng1, ng1 // 2 + 1)
 
     ############
     if N.any(pos2 != None):
