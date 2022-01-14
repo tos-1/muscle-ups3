@@ -237,6 +237,7 @@ class muscleups(object):
         if not self.makeic:
             vel = N.zeros_like(pos)
 
+        ids = self.get_ids()
         gadgetutils.writegadget(
             pos,
             vel,
@@ -247,7 +248,7 @@ class muscleups(object):
             self.C.h,
             path,
             fileroot,
-            id=None)
+            id=ids)
         print('written binaries in', path + fileroot + '.dat')
 
         if self.return_pos:
@@ -490,13 +491,33 @@ class muscleups(object):
         pos_ICs = pos_ICs[indexes]
         return pos_ICs
 
+    def get_ids(self):
+        ptype = [1]  # cdm
+        pos_ICs = readgadget.read_block(
+            self.binic, "POS ", ptype) / 1e3  # Mpc/h
+        IDs_ICs = readgadget.read_block(
+            self.binic, "ID  ", ptype) - 1  # IDs begin from 0
+        indexes = N.argsort(IDs_ICs)
+        pos_ICs = pos_ICs[indexes]
+        IDs_ICs = IDs_ICs[indexes]
+
+        grid_index = ( N.round( (pos_ICs / self.boxsize) * self.ng,
+                      decimals=0 ) ).astype(N.int32)
+        del pos_ICs
+        gc.collect()
+
+        grid_index[N.where(grid_index == self.ng)] = 0
+        grid_index = grid_index[:, 0] * self.ng**2 + \
+            grid_index[:, 1] * self.ng + grid_index[:, 2]
+
+        indexes2 = N.argsort(grid_index)
+        IDs_ICs = IDs_ICs[indexes2]
+        return IDs_ICs
+
     def get_disp(self):
         pos_ICs = self.get_pos_ics()
-        grid_index = (
-            N.round(
-                (pos_ICs / self.boxsize) * self.ng,
-                decimals=0)).astype(
-            N.int32)
+        grid_index = ( N.round( (pos_ICs / self.boxsize) * self.ng,
+                      decimals=0 ) ).astype(N.int32)
         grid_index[N.where(grid_index == self.ng)] = 0
         disp = pos_ICs - grid_index * self.boxsize / self.ng
         disp[N.where(disp > self.boxsize / 2.0)] -= self.boxsize
@@ -537,9 +558,9 @@ class muscleups(object):
         sh = (self.ng, self.ng, self.thirdim)
         kx, ky, kz = N.mgrid[0:sh[0], 0:sh[1], 0:sh[2]].astype(N.float32)
 
-        kx[N.where(kx > self.ng / 2)] -= self.ng
-        ky[N.where(ky > self.ng / 2)] -= self.ng
-        kz[N.where(kz > self.ng / 2)] -= self.ng
+        kx[N.where(kx > self.ng // 2)] -= self.ng
+        ky[N.where(ky > self.ng // 2)] -= self.ng
+        kz[N.where(kz > self.ng // 2)] -= self.ng
 
         kx *= kmin
         ky *= kmin
