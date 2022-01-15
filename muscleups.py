@@ -262,13 +262,14 @@ class muscleups(object):
         '''
         xp, yp, zp = disp
 
-        # setup particles on a uniform grid
-        sh = xp.shape
-        a, b, c = N.mgrid[0:sh[0], 0:sh[1], 0:sh[2]].astype(N.float32)
-
-        a = self.cellsize * a
-        b = self.cellsize * b
-        c = self.cellsize * c
+        if self.binic is not None:
+            a , b , c = self.get_lag_pos_ics()
+        else:
+            sh = xp.shape
+            a, b, c = N.mgrid[0:sh[0], 0:sh[1], 0:sh[2]].astype(N.float32)
+            a = self.cellsize * a
+            b = self.cellsize * b
+            c = self.cellsize * c
 
         a += xp
         b += yp
@@ -278,6 +279,8 @@ class muscleups(object):
         a = a % self.boxsize
         b = b % self.boxsize
         c = c % self.boxsize
+
+
 
         return a, b, c
 
@@ -514,6 +517,7 @@ class muscleups(object):
         IDs_ICs = IDs_ICs[indexes2]
         return IDs_ICs
 
+
     def get_lagindexes(self):
         ptype = [1]  # cdm
         pos_ICs = readgadget.read_block(
@@ -535,6 +539,31 @@ class muscleups(object):
 
         indexes2 = N.argsort(grid_index)
         return indexes2
+
+
+    def get_lag_pos_ics(self):
+        ptype = [1]  # cdm
+        pos_ICs = readgadget.read_block(
+            self.binic, "POS ", ptype) / 1e3  # Mpc/h
+        IDs_ICs = readgadget.read_block(
+            self.binic, "ID  ", ptype) - 1  # IDs begin from 0
+        indexes = N.argsort(IDs_ICs)
+        pos_ICs = pos_ICs[indexes]
+        IDs_ICs = IDs_ICs[indexes]
+
+        grid_index = ( N.round( (pos_ICs / self.boxsize) * self.ng,
+                      decimals=0 ) ).astype(N.int32)
+
+        grid_index[N.where(grid_index == self.ng)] = 0
+        grid_index = grid_index[:, 0] * self.ng**2 + \
+            grid_index[:, 1] * self.ng + grid_index[:, 2]
+
+        indexes2 = N.argsort(grid_index)
+        pos_ICs = pos_ICs[indexes2]
+        pos_ICs = N.reshape(pos_ICs, (self.ng, self.ng, self.ng, 3))
+        pos_ICs = N.rollaxis(pos_ICs, -1)
+        return pos_ICs
+
 
     def get_disp(self):
         pos_ICs = self.get_pos_ics()
