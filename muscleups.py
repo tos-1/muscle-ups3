@@ -8,7 +8,7 @@ import gc
 import warnings
 import multiprocessing
 from ext._Paint import Paint
-from ext._halomodel import halomodel
+#from ext._halomodel import halomodel
 try:
     import readgadget
 except ImportError:
@@ -666,7 +666,7 @@ class muscleups(object):
 
         starter = 0
         for i in N.arange(starter, twofolds):
-            sigma = 2**i
+            sigma = 2**i *self.cellsize 
             sigma_k = 2. * N.pi / sigma
             Wk = N.exp(-(self.k / sigma_k)**2 / 2.)
             Wk.flat[0] = 1
