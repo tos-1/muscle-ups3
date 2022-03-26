@@ -81,6 +81,10 @@ class muscleups(object):
             self.boxsize=float(params.boxsize)
             self.cellsize=params.boxsize / float(params.ng)
             self.h=float(params.hubble)
+            self.sigma8 = params.sigma8
+            self.ns = params.ns
+            self.omega_b = params.omega_b
+            self.Omega_cdm = params.Omega_cdm
             self.redshift=float(params.redshift)
             self.z_pk=float(params.z_pk)
             self.sigmaalpt=float(params.sigmaalpt)
@@ -100,6 +104,10 @@ class muscleups(object):
             self.boxsize=float(boxsize)
             self.cellsize=boxsize / float(ng)
             self.h=float(h)
+            self.sigma8 = sigma8
+            self.ns = ns
+            self.omega_b = omega_b
+            self.Omega_cdm = Omega_cdm
             self.redshift=float(redshift)
             self.z_pk=float(z_pk)
             self.sigmaalpt=float(sigmaalpt)
@@ -140,28 +148,28 @@ class muscleups(object):
         if cosmology == 'cls':
             try:
                 from classy import Class
-                self.C = cosmo.PSClass(h, omega_b, Omega_cdm, ns, sigma8)
+                self.C = cosmo.PSClass(self.h, self.omega_b, self.Omega_cdm, self.ns, self.sigma8)
             except ImportError:
                 print('class is not installed, using ehu')
-                self.C = cosmo.EisHu(h, omega_b, Omega_cdm, ns, sigma8)
+                self.C = cosmo.EisHu(self.h, self.omega_b, self.Omega_cdm, self.ns, self.sigma8)
 
         elif cosmology == 'ehu':
-            self.C = cosmo.EisHu(h, omega_b, Omega_cdm, ns, sigma8)
+            self.C = cosmo.EisHu(self.h, self.omega_b, self.Omega_cdm, self.ns, self.sigma8)
         else:
             raise ValueError("select the cosmology correctly")
 
-        self.D_i = self.C.d1(z_pk)
-        self.D_f = self.C.d1(redshift)
+        self.D_i = self.C.d1(self.z_pk)
+        self.D_f = self.C.d1(self.redshift)
         self.growth = self.D_f / self.D_i
         self.rho = 2.77536627e+11 * self.C.Omega_0
 
         # growth factors, from Bouchet95
-        self.f1 = self.C.Om0z(redshift)**(5. / 9.)
-        self.f2 = 2. * self.C.Om0z(redshift)**(6. / 11.)
+        self.f1 = self.C.Om0z(self.redshift)**(5. / 9.)
+        self.f2 = 2. * self.C.Om0z(self.redshift)**(6. / 11.)
 
         # target HMF etc., used for halomodel
-        self.Mcrit = self.C.Mzcrit(redshift)
-        self.Delta_v = self.C.Delta_v(redshift)
+        self.Mcrit = self.C.Mzcrit(self.redshift)
+        self.Delta_v = self.C.Delta_v(self.redshift)
         if self.scheme == 'muscleups':
             self.hmf = self.C.tablehmf(
                 z=self.redshift, boxsize=self.boxsize, ng=self.ng, Dm=0.025)
