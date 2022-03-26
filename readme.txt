@@ -15,7 +15,7 @@ It is easy to run the code in a virtual enviroment
 #>> pip install matplotlib ipython
 #>> pip install jedi==0.17.2 (downgrade jedi because it clashes with ipython)
 
-to install
+to install, change the path to your gsl libraries in setup.py
 >> make
 
 # if you want to use a notebook
