@@ -308,7 +308,7 @@ def MAS(pos, boxsize, ng):
     #ww=wx*wy*wz
     #dk = dk / ww (N.sinc(kx/2./kny)*N.sinc(ky/2./kny)*N.sinc(kz/2./kny))**2.
 
-    #dk = dk / (N.sinc(kx/2./kny)*N.sinc(ky/2./kny)*N.sinc(kz/2./kny))**2.
+    dk = dk / (N.sinc(kx/2./kny)*N.sinc(ky/2./kny)*N.sinc(kz/2./kny))**2.
     dens = N.fft.irfftn(dk)
 
     return dens
