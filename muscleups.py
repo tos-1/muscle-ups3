@@ -8,7 +8,7 @@ import gc
 import warnings
 import multiprocessing
 from ext._Paint import Paint
-#from ext._halomodel import halomodel
+from ext._halomodel import halomodel
 try:
     import readgadget
 except ImportError:
