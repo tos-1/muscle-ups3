@@ -81,7 +81,7 @@ class muscleups(object):
             self.boxsize=float(params.boxsize)
             self.cellsize=params.boxsize / float(params.ng)
             self.h=float(params.hubble)
-            self.sigma8 = params.sigma8
+            self.sigma8 = params.s8
             self.ns = params.ns
             self.omega_b = params.omega_b
             self.Omega_cdm = params.Omega_cdm
