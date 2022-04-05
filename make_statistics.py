@@ -313,33 +313,21 @@ def MAS(pos, boxsize, ng):
 
     return dens
 
-def MASHalos(folder, boxsize, ng, minpart=20):
-    """ Inputs::
-	  folder: contains the output of bgc2 binaries from rockstar
-	  boxsize:
-	  ng: meshgrid size
-	  minpart: min number of particles
-	Returns::
-	  halo density field of shape (ng, ng, ng)
+def MASHalos( Nparticles, posHC, boxsize, ng, minpart=20 ):
+    """ It computes halo overdensity with Cloud in Cell MAS 
+	Inputs::
+          Npart: array or list containing number of particles per halo, or mass of each halo
+          posHC: (len(Npart),3) array or list of positions of center of mass of haloes in the catalogue
+          boxsize: of simulation
+          ng: meshgrid size
+          minpart: min number of particles
+        Returns::
+          halo over-density field of shape (ng, ng, ng)
     """
 
-    halos = N.empty((1, 14))
-    for num in range(8):
-        input_file = folder + 'halos_0.' + str(num) + '.bgc2'
-        _, _halos, _ = read_bgc2(input_file)
-        halos = N.concatenate((halos, _halos), axis=0)
-    halos = halos[1:]  # remove empty
-
-    # halo-id, parent-id, nparticles, _, rvir, mass, pos[3], vel[3]
-    # halocat = N.empty(nhalos, dtype=[('Position', ('f8', 3)), ('Velocity',
-    # ('f8', 3)), ('Np', 'i4')])
-    Nparticles = N.asarray(halos[:, 2], dtype=N.int32)
-    posHC = N.asarray(halos[:, 6:9], dtype=N.float32)
-    del halos
-    import gc
-    gc.collect()
-
-    posHC = posHC[Nparticles > minpart, :]
+    Nparticles = N.float32(Nparticles)
+    print(N.shape(Nparticles))
+    posHC = posHC[Nparticles >= minpart, :]
     Nparticles = Nparticles[Nparticles > minpart]
 
     Nhalos = len(Nparticles)
@@ -350,8 +338,10 @@ def MASHalos(folder, boxsize, ng, minpart=20):
     sh = (ng, ng, ng,)
     densH = N.zeros(sh, dtype=N.float32).flatten()
     posHC = N.asarray(posHC).astype(dtype=N.float32)
-    posHC[posHC == boxsize] = 1.0e-06
+    posHC = posHC%boxsize
     masHalos(ng, Nhalos, boxsize, posHC, densH, Nparticles)
+    densH /= densH.mean()
+    densH -= 1.0
     densH = densH.reshape(sh)
 
     return densH
