@@ -21,7 +21,7 @@ parser.add_argument('-redshift',default = 0., help = 'redshift at which the outp
 parser.add_argument('-ng',default = 64, help = 'number of particles per side',type = int)
 parser.add_argument('-box',default = 64., help = 'size of the box in Mpc/h',type = float)
 parser.add_argument('-sigmaalpt',default = 4., help = 'interpolating scale between 2lpt and sc, in Mpc/h',type = float)
-parser.add_argument('-scheme',default = '2lpt', help = 'scheme among which to choose the evolution. The options are zeld,2lpt,sc,hmlpt,muscle')
+parser.add_argument('-scheme',default = '2lpt', help = 'scheme among which to choose the evolution. The options are zeld,2lpt,sc,muscle,muscleups')
 parser.add_argument('-smallscheme',default = None, help = 'selecting this activates alpt. It works only with sc and muscle, while 2lpt on large scales is automatically set')
 parser.add_argument('-threads',default = 1., help = 'number of threads used by pyfftw',type = int)
 parser.add_argument('-extra',default ='', help = 'initial stringany for the output fileroot',type = str)
