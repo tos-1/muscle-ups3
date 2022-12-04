@@ -1,7 +1,7 @@
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from make_statistics import *
+from utils.make_statistics import *
 import numpy as N
 
 boxsize = 1000.

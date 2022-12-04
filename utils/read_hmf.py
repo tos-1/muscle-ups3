@@ -1,3 +1,8 @@
+################################################
+# Functions to use the output halo catalogue of muscleups
+# they both need only the path to the binary file of the snapshot
+################################################
+
 import readgadget
 import numpy as N
 import matplotlib.pyplot as plt
@@ -80,12 +85,17 @@ def read_catalogue(pathtobin):
 
 
 if __name__ == "__main__":
-    pathtobin = 'sims/bx200.0_ng300_z0.0_Om0.30/muscleups/x3_z0.0__0.dat'
+    pathtobin = 'sims/bx1000.0_ng256_z0.0_Om0.30/muscleups/z0.0__0.dat'
+
+    # make halo mass function from the catalogue
     hmf = read_hmf(pathtobin)
     plt.semilogy(hmf[0],hmf[1])
     plt.show()
 
+    # read the catalogue
     hc = read_catalogue(pathtobin)
     Nhalos = len(hc)
+    print("number of haloes=", Nhalos)
     mass=  [hc[i][4] for i in range(Nhalos)]  # number of particles
     pos =  [hc[i][7:10] for i in range(Nhalos)] # positions 
+    print("log10 mass range {:.3f} to {:.3f}".format( N.log10(N.min(mass)), N.log10(N.max(mass)) ) )

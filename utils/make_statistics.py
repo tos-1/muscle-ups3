@@ -3,7 +3,7 @@ import numpy as N
 import os
 from ext._mas import mas
 from ext._masHalos import masHalos
-from BGC2 import read_bgc2
+from utils.BGC2 import read_bgc2
 import readgadget
 import gc
 
@@ -231,6 +231,8 @@ def fastPk(d=None, dk=None, pos=None, boxsize=None, nkbins=None, kb=0):
         ng = sh[0]
         d = MAS(pos, boxsize, ng)
         dk = N.fft.rfftn(d)
+        del pos
+        gc.collect()
 
     elif N.any(d != None):
         sh = N.shape(d)
@@ -240,10 +242,15 @@ def fastPk(d=None, dk=None, pos=None, boxsize=None, nkbins=None, kb=0):
         ng = N.shape(dk)[0]
         sh = (ng, ng, ng // 2 + 1)
 
-    # ng = N.shape(dk)[0]
     sh = len(N.shape(dk))  # dimensions
-    kgrid = getkgrid(boxsize, ng)
+    kx, ky, kz, kgrid = getkgrid(boxsize, ng, what='all')
     norm = (boxsize / float(ng)**2.)**sh
+
+    # basic deconvolution
+    kny = N.pi * ng / boxsize
+    dk = dk / (N.sinc(kx/2./kny)*N.sinc(ky/2./kny)*N.sinc(kz/2./kny))**2.
+    del kx, ky, kz
+    gc.collect()
 
     kgrid = kgrid.flatten()
     dk2 = abs(dk.flatten()) ** 2.
@@ -292,25 +299,6 @@ def MAS(pos, boxsize, ng):
     pos[pos == boxsize] = 1.0e-06
     mas(ng, np, boxsize, pos, dens)
     dens = dens.reshape(sh)
-    del pos
-    gc.collect()
-
-    dk = N.fft.rfftn(dens)
-    kx, ky, kz = getkgrid(boxsize, ng, what='cart')
-    kny = N.pi * ng / boxsize
-
-    #wx=(N.sin(kx*N.pi/(2*kny))/kx*N.pi/(2*kny))**2
-    #wx[N.where(kx==0.)]=1.0
-    #wy=(N.sin(ky*N.pi/(2*kny))/ky*N.pi/(2*kny))**2
-    #wy[N.where(ky==0.)]=1.0
-    #wz=(N.sin(kz*N.pi/(2*kny))/kz*N.pi/(2*kny))**2
-    #wz[N.where(kz==0.)]=1.0
-    #ww=wx*wy*wz
-    #dk = dk / ww (N.sinc(kx/2./kny)*N.sinc(ky/2./kny)*N.sinc(kz/2./kny))**2.
-
-    dk = dk / (N.sinc(kx/2./kny)*N.sinc(ky/2./kny)*N.sinc(kz/2./kny))**2.
-    dens = N.fft.irfftn(dk)
-
     return dens
 
 def MASHalos( Nparticles, posHC, boxsize, ng, minpart=20 ):

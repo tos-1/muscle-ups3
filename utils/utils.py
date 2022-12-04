@@ -684,8 +684,8 @@ def dispfield(pathtobin=None,saveto='sims/bx256_ng256_z0.0_Om0.30/images/'):
     return
 
 
+#if __name__ == "__main__":
 
-if __name__ == "__main__":
     #dh = MAShalos('sims/bx256.0_ng256_z0.0_Om0.30/muscleups/z0.0__0.dat', 256., 32)
 
     #dh = rockstarHalos(256.,32)
