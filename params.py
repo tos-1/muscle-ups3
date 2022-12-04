@@ -1,5 +1,5 @@
 #Quijote simulation
-ng = 512
+ng = 256
 boxsize = 1000.
 cosmology = 'ehu'
 Omega_m = 0.3175
@@ -12,8 +12,7 @@ s8 = 0.834
 z_pk = 127.0
 redshift = 0.0
 sigmaalpt = 4.0
-scheme = '2lpt'
-#'Rockstar'
+scheme = 'muscleups'
 smallscheme = None
 threads = 1
 extra = ''
@@ -22,5 +21,4 @@ exact_pk = True
 makeic = False
 return_pos = False
 extra_info=''
-binic = None
-#'/home/wp3i/Quijote/10000/ICs/ics'
+binic = None #'/home/wp3i/Quijote/10000/ICs/ics'
