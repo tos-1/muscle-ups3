@@ -1,7 +1,7 @@
 import numpy as N
-import cosmo
+from cosmo import cosmo
 import pyfftw
-import gadgetutils
+from utils import gadgetutils
 import os
 import sys
 import gc
@@ -33,6 +33,8 @@ class muscleups(object):
         -2lpt
         -sc
         -muscle
+	-muscleups
+	-Rockstar (used for testing)
       smallscheme: selecting this activates alpt. It works only with sc and muscle, while 2lpt on large scales is automatically set
       threads: number of threads used by pyfftw
       extra: initial string for the output folder and files
